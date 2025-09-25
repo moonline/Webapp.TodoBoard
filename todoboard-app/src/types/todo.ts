@@ -12,12 +12,15 @@ export interface TodoTask {
 	dueDate: string | null;
 }
 
+export type DisplayBehavior = "always" | "whenTasks" | "hide";
+
 export interface BoardColumn {
 	id: string;
 	title: string;
 	icon: string;
 	color?: string;
 	visible: boolean;
+	displayBehavior: DisplayBehavior;
 	order: number;
 	tasks: TodoTask[];
 }

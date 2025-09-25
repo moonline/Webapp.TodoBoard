@@ -2,7 +2,13 @@
 	<div class="card task-card mb-2" :class="{ completed: task.completed }">
 		<div class="card-header p-2 d-flex justify-content-between align-items-center">
 			<div>
-				<span v-if="task.priority" class="badge bg-warning me-1">{{ task.priority }}</span>
+				<span
+					v-if="task.priority"
+					class="badge me-1"
+					:class="getPriorityClass(task.priority)"
+				>
+					{{ task.priority }}
+				</span>
 				<span v-if="task.completed" class="badge bg-success">✓</span>
 				<span v-if="task.dueDate" class="badge bg-info"
 					>📅 {{ formatDate(task.dueDate) }}</span
@@ -58,6 +64,19 @@ function formatDate(dateStr: string): string {
 		return new Date(dateStr).toLocaleDateString();
 	} catch {
 		return dateStr;
+	}
+}
+
+function getPriorityClass(priority: string): string {
+	switch (priority.toUpperCase()) {
+		case "A":
+			return "bg-danger text-white";
+		case "B":
+			return "bg-warning text-dark";
+		case "C":
+			return "bg-info text-white";
+		default:
+			return "bg-secondary text-white";
 	}
 }
 </script>

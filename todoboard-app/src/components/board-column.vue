@@ -1,10 +1,13 @@
 <template>
 	<div class="board-column">
-		<div class="column-header p-3 bg-light border-bottom">
-			<h5 class="mb-0">
+		<div
+			class="column-header p-3 border-bottom"
+			:style="{ backgroundColor: column.color || '#f8f9fa' }"
+		>
+			<h5 class="mb-0 text-white">
 				<span class="me-2">{{ column.icon }}</span>
 				{{ column.title }}
-				<span class="badge bg-secondary ms-2">{{ column.tasks.length }}</span>
+				<span class="badge bg-dark bg-opacity-25 ms-2">{{ column.tasks.length }}</span>
 			</h5>
 		</div>
 
@@ -28,14 +31,16 @@ defineProps<{
 
 <style scoped>
 .board-column {
-	min-width: 300px;
+	min-width: 250px;
+	max-width: 280px;
+	flex: 1;
 	background: #f8f9fa;
 	border: 1px solid #dee2e6;
 	border-radius: 0.375rem;
 }
 
 .column-header {
-	background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+	/* Background color is set via inline style for customization */
 }
 
 .column-content {

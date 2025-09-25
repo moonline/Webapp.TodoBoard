@@ -2,18 +2,20 @@
 	<div class="board-view d-flex flex-column h-100">
 		<!-- Toolbar -->
 		<div class="toolbar bg-white border-bottom p-3">
-			<div class="d-flex justify-content-between align-items-center mb-2">
-				<h4 class="mb-0">📋 TodoBoard</h4>
+			<div class="d-flex justify-content-end align-items-center mb-2">
 				<div>
 					<button @click="showFileInput = true" class="btn btn-primary btn-sm me-2">
 						📁 Load todo.txt
 					</button>
 					<button
 						@click="downloadTodos"
-						class="btn btn-outline-primary btn-sm"
+						class="btn btn-outline-primary btn-sm me-2"
 						:disabled="tasks.length === 0"
 					>
 						💾 Download
+					</button>
+					<button @click="showSettings = true" class="btn btn-outline-secondary btn-sm">
+						⚙️ Settings
 					</button>
 				</div>
 			</div>
@@ -38,6 +40,106 @@
 			<filter-bar :filter="filter" :tasks="allTasks" @update:filter="updateFilter" />
 		</div>
 
+		<!-- Settings Modal -->
+		<div v-if="showSettings" class="modal-backdrop" @click="showSettings = false">
+			<div class="modal-content" @click.stop>
+				<div class="modal-header">
+					<h5 class="modal-title">Board Settings</h5>
+					<button @click="showSettings = false" class="btn-close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="mb-3">
+						<label class="form-label">Column By:</label>
+						<select v-model="boardConfig.columnBy" class="form-select">
+							<option value="status">Status</option>
+							<option value="priority">Priority</option>
+							<option value="project">Project</option>
+							<option value="context">Context</option>
+						</select>
+					</div>
+
+					<div class="mb-3">
+						<h6>Column Configuration:</h6>
+						<div
+							v-for="[key, column] in Object.entries(boardConfig.columns)"
+							:key="key"
+							class="border rounded p-3 mb-3"
+						>
+							<div class="row g-2">
+								<div class="col-md-6">
+									<label class="form-label small">Title:</label>
+									<input
+										v-model="column.title"
+										type="text"
+										class="form-control form-control-sm"
+									/>
+								</div>
+								<div class="col-md-3">
+									<label class="form-label small">Icon:</label>
+									<input
+										v-model="column.icon"
+										type="text"
+										class="form-control form-control-sm"
+									/>
+								</div>
+								<div class="col-md-3">
+									<label class="form-label small">Order:</label>
+									<input
+										v-model.number="column.order"
+										type="number"
+										class="form-control form-control-sm"
+										min="0"
+									/>
+								</div>
+							</div>
+
+							<div class="row g-2 mt-2">
+								<div class="col-md-4">
+									<label class="form-label small">Color:</label>
+									<input
+										v-model="column.color"
+										type="color"
+										class="form-control form-control-color form-control-sm"
+									/>
+								</div>
+								<div class="col-md-4">
+									<label class="form-label small">Display:</label>
+									<select
+										v-model="column.displayBehavior"
+										class="form-select form-select-sm"
+									>
+										<option value="always">Always Show</option>
+										<option value="whenTasks">When Has Tasks</option>
+										<option value="hide">Hide</option>
+									</select>
+								</div>
+								<div class="col-md-4 d-flex align-items-end">
+									<div class="form-check">
+										<input
+											:id="`visible-${key}`"
+											v-model="column.visible"
+											type="checkbox"
+											class="form-check-input"
+										/>
+										<label
+											:for="`visible-${key}`"
+											class="form-check-label small"
+										>
+											Visible
+										</label>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button @click="saveSettings" class="btn btn-primary">Save Settings</button>
+					<button @click="showSettings = false" class="btn btn-secondary">Cancel</button>
+				</div>
+			</div>
+		</div>
+
 		<!-- Board -->
 		<div class="board-container flex-grow-1 overflow-auto">
 			<div v-if="tasks.length === 0" class="text-center py-5">
@@ -50,7 +152,7 @@
 				</button>
 			</div>
 
-			<div v-else class="board d-flex gap-3 p-3" style="min-height: 100%">
+			<div v-else class="board">
 				<BoardColumnComponent
 					v-for="column in visibleColumns"
 					:key="column.id"
@@ -79,6 +181,7 @@ import FilterBar from "@/components/filter-bar.vue";
 
 const boardId = "main";
 const showFileInput = ref(false);
+const showSettings = ref(false);
 const fileInput = ref<HTMLInputElement>();
 
 const allTasks = ref<TodoTask[]>([]);
@@ -112,6 +215,12 @@ const tasks = computed(() => {
 const visibleColumns = computed(() => {
 	const columnMap = new Map<string, TodoTask[]>();
 
+	// Initialize all configured columns with empty arrays
+	Object.keys(boardConfig.value.columns).forEach((key) => {
+		columnMap.set(key, []);
+	});
+
+	// Distribute tasks into columns
 	tasks.value.forEach((task) => {
 		const columnValue = getColumnValue(task, boardConfig.value.columnBy);
 		if (!columnMap.has(columnValue)) {
@@ -125,13 +234,20 @@ const visibleColumns = computed(() => {
 
 	const columns: BoardColumn[] = [];
 
+	// Create columns based on visibility and display behavior
 	Object.entries(boardConfig.value.columns).forEach(([key, config]) => {
 		if (config.visible) {
-			const tasks = columnMap.get(key) || [];
-			columns.push({
-				...config,
-				tasks: sortTasks(tasks),
-			});
+			const columnTasks = columnMap.get(key) || [];
+			const shouldShow =
+				config.displayBehavior === "always" ||
+				(config.displayBehavior === "whenTasks" && columnTasks.length > 0);
+
+			if (shouldShow) {
+				columns.push({
+					...config,
+					tasks: sortTasks(columnTasks),
+				});
+			}
 		}
 	});
 
@@ -185,10 +301,28 @@ function handleFileUpload(event: Event): void {
 
 	const reader = new FileReader();
 	reader.onload = (e) => {
-		const content = e.target?.result as string;
-		allTasks.value = parseTodoText(content);
-		saveTasks(boardId, allTasks.value);
-		showFileInput.value = false;
+		try {
+			const content = e.target?.result as string;
+			if (content) {
+				console.log("File content loaded:", content.substring(0, 200) + "...");
+				const parsedTasks = parseTodoText(content);
+				console.log("Parsed tasks:", parsedTasks);
+				allTasks.value = parsedTasks;
+				saveTasks(boardId, allTasks.value);
+				showFileInput.value = false;
+				// Reset the file input so the same file can be loaded again
+				if (fileInput.value) {
+					fileInput.value.value = "";
+				}
+			} else {
+				console.error("No content in file");
+			}
+		} catch (error) {
+			console.error("Error parsing file:", error);
+		}
+	};
+	reader.onerror = (error) => {
+		console.error("Error reading file:", error);
 	};
 	reader.readAsText(file);
 }
@@ -208,13 +342,15 @@ function downloadTodos(): void {
 }
 
 function createSampleTasks(): void {
-	const sampleTodoText = `(A) Call Mom +family @home
+	const sampleTodoText = `(A) Call Mom +family @home status:todo
 x Write documentation +work @computer
-(B) Buy groceries +personal @errands due:2024-01-15
+(B) Buy groceries +personal @errands due:2024-01-15 status:todo
 x 2024-01-10 2024-01-08 Submit quarterly report +work @computer
-Setup meeting with team +work @office status:todo
+Setup meeting with team +work @office status:doing
 Review pull requests +work @computer status:doing
-Deploy to production +work @computer status:done priority:high`;
+Deploy to production +work @computer status:done
+(C) Plan vacation +personal @home status:todo
+Fix critical bug +work @computer status:doing priority:high`;
 
 	allTasks.value = parseTodoText(sampleTodoText);
 	saveTasks(boardId, allTasks.value);
@@ -223,6 +359,11 @@ Deploy to production +work @computer status:done priority:high`;
 function updateFilter(newFilter: Filter): void {
 	filter.value = newFilter;
 	saveFilter(boardId, filter.value);
+}
+
+function saveSettings(): void {
+	saveBoardConfig(boardId, boardConfig.value);
+	showSettings.value = false;
 }
 
 onMounted(() => {
@@ -245,10 +386,80 @@ onMounted(() => {
 }
 
 .board {
-	min-width: max-content;
+	display: flex;
+	flex-wrap: nowrap;
+	overflow-x: auto;
+	min-height: 100%;
+	gap: 1rem;
+	padding: 1rem;
 }
 
 .board-container {
 	background: #f8f9fa;
+}
+
+.modal-backdrop {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1050;
+}
+
+.modal-content {
+	background: white;
+	border-radius: 0.375rem;
+	max-width: 500px;
+	width: 90%;
+	max-height: 80vh;
+	overflow: auto;
+	box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+	padding: 1rem;
+	border-bottom: 1px solid #dee2e6;
+	display: flex;
+	justify-content: between;
+	align-items: center;
+}
+
+.modal-title {
+	margin: 0;
+	flex: 1;
+}
+
+.btn-close {
+	background: none;
+	border: none;
+	font-size: 1.5rem;
+	cursor: pointer;
+	padding: 0;
+	width: 1.5rem;
+	height: 1.5rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.btn-close:before {
+	content: "×";
+}
+
+.modal-body {
+	padding: 1rem;
+}
+
+.modal-footer {
+	padding: 1rem;
+	border-top: 1px solid #dee2e6;
+	display: flex;
+	gap: 0.5rem;
+	justify-content: flex-end;
 }
 </style>
