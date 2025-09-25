@@ -4,18 +4,19 @@ Create a todo.txt task management application with the following specifications:
 
 ## Data Sources
 * todo.txt format: https://github.com/todotxt/todo.txt
-* Parser library: https://www.npmjs.com/package/todotxt-parser
+* Parser library: https://www.npmjs.com/package/todo-txt-ts
 
 ## Core Features
 - **Multi-file support**: Handle multiple todo.txt files in tabbed interface
 - **Kanban-style board**: Display tasks as cards in configurable columns
 - **Dual deployment**: Web app (static hosting) + Electron desktop app
-- **todo.txt format compliance**: Use standard todo.txt format with todotxt-parser library
+- **todo.txt format compliance**: Use standard todo.txt format with todo-txt-ts library
 
 ## Technology Stack
 - **Frontend**: Vue.js + TypeScript + Bootstrap
-- **Parser**: todotxt-parser npm package
+- **Parser**: todo-txt-ts npm package
 - **Desktop**: Electron wrapper for local file access
+- **Code Styling**: Prettier with tabs for JS/TS indentation
 
 ## User Interface Layout
 1. **Tab bar**: Open todo.txt files + new tab button
@@ -54,4 +55,4 @@ Create a todo.txt task management application with the following specifications:
 - **File history**: Track last 10 opened files
 
 ## Implementation Instructions
-Generate this application with proper project structure, component architecture, and both web and desktop deployment configurations. Use Vue.js with TypeScript and Bootstrap for the frontend, and leverage the todotxt-parser npm package for parsing todo.txt files.
+Generate this application with proper project structure, component architecture, and both web and desktop deployment configurations. Use Vue.js with TypeScript and Bootstrap for the frontend, and leverage the todo-txt-ts npm package for parsing todo.txt files.
