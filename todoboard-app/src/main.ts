@@ -1,7 +1,7 @@
 import { createApp } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
 import App from "./App.vue";
-import BoardView from "./views/BoardView.vue";
+import BoardView from "./views/board-view.vue";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap";

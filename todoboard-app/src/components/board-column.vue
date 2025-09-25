@@ -19,7 +19,7 @@
 
 <script setup lang="ts">
 import type { BoardColumn } from "@/types/todo";
-import TaskCard from "./TaskCard.vue";
+import TaskCard from "./task-card.vue";
 
 defineProps<{
 	column: BoardColumn;

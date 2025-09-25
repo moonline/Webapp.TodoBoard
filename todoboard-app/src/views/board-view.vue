@@ -64,7 +64,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import type { TodoTask, BoardColumn, BoardConfig, Filter } from "@/types/todo";
-import { parseTodoText, serializeTodoTasks, getColumnValue } from "@/utils/todoParser";
+import { parseTodoText, serializeTodoTasks, getColumnValue } from "@/utils/todo-parser";
 import {
 	saveTasks,
 	loadTasks,
@@ -74,8 +74,8 @@ import {
 	loadFilter,
 	getDefaultBoardConfig,
 } from "@/utils/storage";
-import BoardColumnComponent from "@/components/BoardColumn.vue";
-import FilterBar from "@/components/FilterBar.vue";
+import BoardColumnComponent from "@/components/board-column.vue";
+import FilterBar from "@/components/filter-bar.vue";
 
 const boardId = "main";
 const showFileInput = ref(false);
