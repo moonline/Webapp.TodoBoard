@@ -1,40 +1,43 @@
 <template>
 	<div class="board-view d-flex flex-column h-100">
 		<!-- Toolbar -->
-		<div class="toolbar bg-white border-bottom p-3">
-			<div class="d-flex justify-content-end align-items-center mb-2">
-				<div>
-					<button @click="showFileInput = true" class="btn btn-primary btn-sm me-2">
-						📁 Load todo.txt
+		<div class="toolbar">
+			<div class="toolbar-actions">
+				<div class="action-buttons">
+					<button @click="showFileInput = true" class="action-button primary">
+						<i class="bi bi-folder-plus"></i>
+						Load todo.txt
 					</button>
 					<button
 						@click="downloadTodos"
-						class="btn btn-outline-primary btn-sm me-2"
+						class="action-button secondary"
 						:disabled="tasks.length === 0"
 					>
-						💾 Download
+						<i class="bi bi-download"></i>
+						Download
 					</button>
-					<button @click="showSettings = true" class="btn btn-outline-secondary btn-sm">
-						⚙️ Settings
+					<button @click="showSettings = true" class="action-button secondary">
+						<i class="bi bi-gear"></i>
+						Settings
 					</button>
 				</div>
 			</div>
 
 			<!-- File Input -->
-			<div v-if="showFileInput" class="mb-3">
-				<input
-					ref="fileInput"
-					type="file"
-					accept=".txt"
-					@change="handleFileUpload"
-					class="form-control"
-				/>
-				<button
-					@click="showFileInput = false"
-					class="btn btn-sm btn-outline-secondary mt-1"
-				>
-					Cancel
-				</button>
+			<div v-if="showFileInput" class="file-input-section">
+				<div class="file-input-container">
+					<input
+						ref="fileInput"
+						type="file"
+						accept=".txt"
+						@change="handleFileUpload"
+						class="file-input"
+					/>
+					<button @click="showFileInput = false" class="cancel-button">
+						<i class="bi bi-x"></i>
+						Cancel
+					</button>
+				</div>
 			</div>
 
 			<filter-bar :filter="filter" :tasks="allTasks" @update:filter="updateFilter" />
@@ -142,14 +145,19 @@
 
 		<!-- Board -->
 		<div class="board-container flex-grow-1 overflow-auto">
-			<div v-if="tasks.length === 0" class="text-center py-5">
-				<h5 class="text-muted">No tasks loaded</h5>
-				<p class="text-muted">
-					Upload a todo.txt file to get started, or create some sample tasks
-				</p>
-				<button @click="createSampleTasks" class="btn btn-primary">
-					Create Sample Tasks
-				</button>
+			<div v-if="tasks.length === 0" class="empty-board-state">
+				<div class="empty-content">
+					<div class="empty-icon">📋</div>
+					<h3 class="empty-title">No tasks loaded</h3>
+					<p class="empty-description">
+						Upload a todo.txt file to get started, or create some sample tasks to see
+						how it works
+					</p>
+					<button @click="createSampleTasks" class="sample-tasks-button">
+						<i class="bi bi-plus-circle"></i>
+						Create Sample Tasks
+					</button>
+				</div>
 			</div>
 
 			<div v-else class="board">
@@ -383,6 +391,7 @@ onMounted(() => {
 <style scoped>
 .board-view {
 	height: 100vh;
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .board {
@@ -390,12 +399,232 @@ onMounted(() => {
 	flex-wrap: nowrap;
 	overflow-x: auto;
 	min-height: 100%;
-	gap: 1rem;
-	padding: 1rem;
+	gap: 20px;
+	padding: 20px;
+	scrollbar-width: thin;
+	scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.board::-webkit-scrollbar {
+	height: 8px;
+}
+
+.board::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.board::-webkit-scrollbar-thumb {
+	background: rgba(255, 255, 255, 0.3);
+	border-radius: 4px;
+}
+
+.board::-webkit-scrollbar-thumb:hover {
+	background: rgba(255, 255, 255, 0.4);
 }
 
 .board-container {
-	background: #f8f9fa;
+	background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+	position: relative;
+}
+
+/* Toolbar Styling */
+.toolbar {
+	background: rgba(255, 255, 255, 0.95);
+	backdrop-filter: blur(10px);
+	border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+	box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+}
+
+.toolbar-actions {
+	padding: 16px 24px;
+	display: flex;
+	justify-content: flex-end;
+}
+
+.action-buttons {
+	display: flex;
+	gap: 12px;
+}
+
+.action-button {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 10px 16px;
+	border: none;
+	border-radius: 8px;
+	font-size: 13px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease-in-out;
+	text-decoration: none;
+}
+
+.action-button.primary {
+	background: #0d6efd;
+	color: white;
+	box-shadow: 0 2px 4px rgba(13, 110, 253, 0.3);
+}
+
+.action-button.primary:hover {
+	background: #0b5ed7;
+	transform: translateY(-1px);
+	box-shadow: 0 4px 8px rgba(13, 110, 253, 0.4);
+}
+
+.action-button.secondary {
+	background: rgba(108, 117, 125, 0.1);
+	color: #495057;
+	border: 1px solid rgba(108, 117, 125, 0.2);
+}
+
+.action-button.secondary:hover:not(:disabled) {
+	background: rgba(108, 117, 125, 0.15);
+	transform: translateY(-1px);
+}
+
+.action-button:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+	transform: none !important;
+}
+
+/* File Input Section */
+.file-input-section {
+	padding: 0 24px 16px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.file-input-container {
+	display: flex;
+	gap: 12px;
+	align-items: center;
+}
+
+.file-input {
+	flex: 1;
+	padding: 10px 12px;
+	border: 2px solid #e9ecef;
+	border-radius: 8px;
+	background: white;
+	font-size: 13px;
+	transition: all 0.2s ease-in-out;
+}
+
+.file-input:focus {
+	outline: none;
+	border-color: #0d6efd;
+	box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+}
+
+.cancel-button {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 10px 16px;
+	background: rgba(220, 53, 69, 0.1);
+	color: #dc3545;
+	border: 1px solid rgba(220, 53, 69, 0.2);
+	border-radius: 8px;
+	font-size: 13px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease-in-out;
+}
+
+.cancel-button:hover {
+	background: rgba(220, 53, 69, 0.15);
+	transform: translateY(-1px);
+}
+
+/* Empty State */
+.empty-board-state {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 60vh;
+	padding: 40px;
+}
+
+.empty-content {
+	text-align: center;
+	max-width: 400px;
+}
+
+.empty-icon {
+	font-size: 64px;
+	margin-bottom: 24px;
+	opacity: 0.6;
+}
+
+.empty-title {
+	color: #495057;
+	font-size: 24px;
+	font-weight: 600;
+	margin-bottom: 12px;
+}
+
+.empty-description {
+	color: #6c757d;
+	font-size: 16px;
+	line-height: 1.5;
+	margin-bottom: 32px;
+}
+
+.sample-tasks-button {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 12px 24px;
+	background: #198754;
+	color: white;
+	border: none;
+	border-radius: 8px;
+	font-size: 14px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease-in-out;
+	box-shadow: 0 4px 12px rgba(25, 135, 84, 0.3);
+}
+
+.sample-tasks-button:hover {
+	background: #157347;
+	transform: translateY(-2px);
+	box-shadow: 0 6px 20px rgba(25, 135, 84, 0.4);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+	.toolbar-actions {
+		padding: 12px 16px;
+	}
+
+	.action-buttons {
+		gap: 8px;
+	}
+
+	.action-button {
+		padding: 8px 12px;
+		font-size: 12px;
+	}
+
+	.file-input-section {
+		padding: 0 16px 12px;
+	}
+
+	.empty-icon {
+		font-size: 48px;
+		margin-bottom: 16px;
+	}
+
+	.empty-title {
+		font-size: 20px;
+	}
+
+	.empty-description {
+		font-size: 14px;
+		margin-bottom: 24px;
+	}
 }
 
 .modal-backdrop {
