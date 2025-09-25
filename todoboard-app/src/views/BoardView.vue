@@ -117,7 +117,10 @@ const visibleColumns = computed(() => {
 		if (!columnMap.has(columnValue)) {
 			columnMap.set(columnValue, []);
 		}
-		columnMap.get(columnValue)!.push(task);
+		const existingTasks = columnMap.get(columnValue);
+		if (existingTasks) {
+			existingTasks.push(task);
+		}
 	});
 
 	const columns: BoardColumn[] = [];
@@ -138,8 +141,8 @@ const visibleColumns = computed(() => {
 function sortTasks(tasks: TodoTask[]): TodoTask[] {
 	return [...tasks].sort((a, b) => {
 		for (const sort of boardConfig.value.sortBy) {
-			let aValue: any = "";
-			let bValue: any = "";
+			let aValue: string = "";
+			let bValue: string = "";
 
 			switch (sort.field) {
 				case "priority":
@@ -163,16 +166,22 @@ function sortTasks(tasks: TodoTask[]): TodoTask[] {
 					bValue = b.tags[sort.field] || "";
 			}
 
-			if (aValue < bValue) return sort.direction === "asc" ? -1 : 1;
-			if (aValue > bValue) return sort.direction === "asc" ? 1 : -1;
+			if (aValue < bValue) {
+				return sort.direction === "asc" ? -1 : 1;
+			}
+			if (aValue > bValue) {
+				return sort.direction === "asc" ? 1 : -1;
+			}
 		}
 		return 0;
 	});
 }
 
-function handleFileUpload(event: Event) {
+function handleFileUpload(event: Event): void {
 	const file = (event.target as HTMLInputElement).files?.[0];
-	if (!file) return;
+	if (!file) {
+		return;
+	}
 
 	const reader = new FileReader();
 	reader.onload = (e) => {
@@ -184,7 +193,7 @@ function handleFileUpload(event: Event) {
 	reader.readAsText(file);
 }
 
-function downloadTodos() {
+function downloadTodos(): void {
 	const content = serializeTodoTasks(allTasks.value);
 	const blob = new Blob([content], { type: "text/plain" });
 	const url = URL.createObjectURL(blob);
@@ -198,7 +207,7 @@ function downloadTodos() {
 	URL.revokeObjectURL(url);
 }
 
-function createSampleTasks() {
+function createSampleTasks(): void {
 	const sampleTodoText = `(A) Call Mom +family @home
 x Write documentation +work @computer
 (B) Buy groceries +personal @errands due:2024-01-15
@@ -211,7 +220,7 @@ Deploy to production +work @computer status:done priority:high`;
 	saveTasks(boardId, allTasks.value);
 }
 
-function updateFilter(newFilter: Filter) {
+function updateFilter(newFilter: Filter): void {
 	filter.value = newFilter;
 	saveFilter(boardId, filter.value);
 }

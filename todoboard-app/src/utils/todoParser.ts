@@ -1,6 +1,10 @@
 import { TaskList, type Task } from "todo-txt-ts";
 import type { TodoTask } from "@/types/todo";
 
+function formatDateToString(date: Date): string {
+	return date.toISOString().split("T")[0];
+}
+
 export function parseTodoText(todoText: string): TodoTask[] {
 	const taskList = TaskList.parse(todoText);
 
@@ -14,17 +18,15 @@ export function parseTodoText(todoText: string): TodoTask[] {
 			}
 		}
 
-		const dueDate = task.dueDate ? task.dueDate.toISOString().split("T")[0] : null;
+		const dueDate = task.dueDate ? formatDateToString(task.dueDate) : null;
 
 		return {
 			id: `task-${index}-${Date.now()}`,
 			raw: task.raw || "",
 			priority: task.priority || null,
 			completed: task.isComplete || false,
-			completedDate: task.completionDate
-				? task.completionDate.toISOString().split("T")[0]
-				: null,
-			createdDate: task.creationDate ? task.creationDate.toISOString().split("T")[0] : null,
+			completedDate: task.completionDate ? formatDateToString(task.completionDate) : null,
+			createdDate: task.creationDate ? formatDateToString(task.creationDate) : null,
 			description: task.body || "",
 			projects: task.projects || [],
 			contexts: task.contexts || [],

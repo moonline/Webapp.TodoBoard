@@ -92,11 +92,11 @@ const availableTags = computed(() => {
 	return Array.from(tags).sort();
 });
 
-function updateFilter() {
+function updateFilter(): void {
 	emit("update:filter", { ...localFilter.value });
 }
 
-function clearFilters() {
+function clearFilters(): void {
 	localFilter.value = { projects: [], contexts: [], tags: {} };
 	selectedTagKey.value = "";
 	updateFilter();
