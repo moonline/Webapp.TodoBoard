@@ -4,6 +4,7 @@ import App from "./App.vue";
 import BoardView from "./views/board-view.vue";
 
 import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap-icons/font/bootstrap-icons.css";
 import "bootstrap";
 
 const routes = [{ path: "/", name: "board", component: BoardView }];

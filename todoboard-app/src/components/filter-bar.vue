@@ -1,105 +1,115 @@
 <template>
-	<div class="filter-bar">
-		<div class="filter-container">
-			<div class="filter-group">
-				<div class="filter-item">
-					<label class="filter-label">
+	<Transition name="collapse">
+		<div v-if="!isCollapsed" class="filter-bar">
+			<div class="filter-container">
+				<div class="filter-group">
+					<div class="filter-item">
+						<label class="filter-label">
+							<i class="bi bi-folder-plus"></i>
+							Project
+						</label>
+						<select
+							v-model="localFilter.projects[0]"
+							class="filter-select"
+							@change="updateFilter"
+						>
+							<option value="">All Projects</option>
+							<option
+								v-for="project in availableProjects"
+								:key="project"
+								:value="project"
+							>
+								{{ project }}
+							</option>
+						</select>
+					</div>
+
+					<div class="filter-item">
+						<label class="filter-label">
+							<i class="bi bi-at"></i>
+							Context
+						</label>
+						<select
+							v-model="localFilter.contexts[0]"
+							class="filter-select"
+							@change="updateFilter"
+						>
+							<option value="">All Contexts</option>
+							<option
+								v-for="context in availableContexts"
+								:key="context"
+								:value="context"
+							>
+								{{ context }}
+							</option>
+						</select>
+					</div>
+
+					<div class="filter-item">
+						<label class="filter-label">
+							<i class="bi bi-tags"></i>
+							Tag
+						</label>
+						<select
+							v-model="selectedTagKey"
+							class="filter-select"
+							@change="updateFilter"
+						>
+							<option value="">Select Tag</option>
+							<option v-for="tag in availableTags" :key="tag" :value="tag">
+								{{ tag }}
+							</option>
+						</select>
+					</div>
+				</div>
+
+				<div class="filter-actions">
+					<button
+						@click="clearFilters"
+						class="clear-button"
+						:disabled="!hasActiveFilters"
+					>
+						<i class="bi bi-x-circle"></i>
+						Clear Filters
+					</button>
+				</div>
+			</div>
+
+			<!-- Active Filters Display -->
+			<div v-if="hasActiveFilters" class="active-filters">
+				<span class="active-filters-label">Active filters:</span>
+				<div class="filter-tags">
+					<span
+						v-if="localFilter.projects[0]"
+						class="filter-tag project-filter"
+						@click="clearProjectFilter"
+					>
 						<i class="bi bi-folder-plus"></i>
-						Project
-					</label>
-					<select
-						v-model="localFilter.projects[0]"
-						class="filter-select"
-						@change="updateFilter"
+						{{ localFilter.projects[0] }}
+						<i class="bi bi-x"></i>
+					</span>
+					<span
+						v-if="localFilter.contexts[0]"
+						class="filter-tag context-filter"
+						@click="clearContextFilter"
 					>
-						<option value="">All Projects</option>
-						<option
-							v-for="project in availableProjects"
-							:key="project"
-							:value="project"
-						>
-							{{ project }}
-						</option>
-					</select>
-				</div>
-
-				<div class="filter-item">
-					<label class="filter-label">
 						<i class="bi bi-at"></i>
-						Context
-					</label>
-					<select
-						v-model="localFilter.contexts[0]"
-						class="filter-select"
-						@change="updateFilter"
+						{{ localFilter.contexts[0] }}
+						<i class="bi bi-x"></i>
+					</span>
+					<span
+						v-for="[key, value] in Object.entries(localFilter.tags)"
+						:key="key"
+						class="filter-tag custom-filter"
+						@click="clearTagFilter(key)"
 					>
-						<option value="">All Contexts</option>
-						<option
-							v-for="context in availableContexts"
-							:key="context"
-							:value="context"
-						>
-							{{ context }}
-						</option>
-					</select>
-				</div>
-
-				<div class="filter-item">
-					<label class="filter-label">
-						<i class="bi bi-tags"></i>
-						Tag
-					</label>
-					<select v-model="selectedTagKey" class="filter-select" @change="updateFilter">
-						<option value="">Select Tag</option>
-						<option v-for="tag in availableTags" :key="tag" :value="tag">
-							{{ tag }}
-						</option>
-					</select>
+						{{ key }}:{{ value }}
+						<i class="bi bi-x"></i>
+					</span>
 				</div>
 			</div>
-
-			<div class="filter-actions">
-				<button @click="clearFilters" class="clear-button" :disabled="!hasActiveFilters">
-					<i class="bi bi-x-circle"></i>
-					Clear Filters
-				</button>
-			</div>
 		</div>
-
-		<!-- Active Filters Display -->
-		<div v-if="hasActiveFilters" class="active-filters">
-			<span class="active-filters-label">Active filters:</span>
-			<div class="filter-tags">
-				<span
-					v-if="localFilter.projects[0]"
-					class="filter-tag project-filter"
-					@click="clearProjectFilter"
-				>
-					<i class="bi bi-folder-plus"></i>
-					{{ localFilter.projects[0] }}
-					<i class="bi bi-x"></i>
-				</span>
-				<span
-					v-if="localFilter.contexts[0]"
-					class="filter-tag context-filter"
-					@click="clearContextFilter"
-				>
-					<i class="bi bi-at"></i>
-					{{ localFilter.contexts[0] }}
-					<i class="bi bi-x"></i>
-				</span>
-				<span
-					v-for="[key, value] in Object.entries(localFilter.tags)"
-					:key="key"
-					class="filter-tag custom-filter"
-					@click="clearTagFilter(key)"
-				>
-					{{ key }}:{{ value }}
-					<i class="bi bi-x"></i>
-				</span>
-			</div>
-		</div>
-	</div>
+	</Transition>
 </template>
 
 <script setup lang="ts">
@@ -109,6 +119,7 @@ import type { Filter, TodoTask } from "@/types/todo";
 const props = defineProps<{
 	filter: Filter;
 	tasks: TodoTask[];
+	isCollapsed?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -369,6 +380,29 @@ watch(
 }
 
 .filter-tag:hover i:last-child {
+	opacity: 1;
+}
+
+/* Collapse Transition */
+.collapse-enter-active,
+.collapse-leave-active {
+	transition: all 0.3s ease-in-out;
+	overflow: hidden;
+}
+
+.collapse-enter-from,
+.collapse-leave-to {
+	max-height: 0;
+	opacity: 0;
+	padding-top: 0;
+	padding-bottom: 0;
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+.collapse-enter-to,
+.collapse-leave-from {
+	max-height: 500px;
 	opacity: 1;
 }
 

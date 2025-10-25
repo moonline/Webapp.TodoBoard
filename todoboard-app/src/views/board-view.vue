@@ -2,23 +2,39 @@
 	<div class="board-view d-flex flex-column h-100">
 		<!-- Toolbar -->
 		<div class="toolbar">
-			<div class="toolbar-actions">
+			<div class="toolbar-header">
+				<h1 class="app-title">📋 TodoBoard</h1>
 				<div class="action-buttons">
-					<button @click="showFileInput = true" class="action-button primary">
+					<button
+						@click="showFileInput = true"
+						class="action-button primary"
+						title="Load todo.txt"
+					>
 						<i class="bi bi-folder-plus"></i>
-						Load todo.txt
 					</button>
 					<button
 						@click="downloadTodos"
 						class="action-button secondary"
 						:disabled="tasks.length === 0"
+						title="Download"
 					>
 						<i class="bi bi-download"></i>
-						Download
 					</button>
-					<button @click="showSettings = true" class="action-button secondary">
+					<button
+						@click="showSettings = true"
+						class="action-button secondary"
+						title="Settings"
+					>
 						<i class="bi bi-gear"></i>
-						Settings
+					</button>
+					<button
+						@click="isFilterCollapsed = !isFilterCollapsed"
+						class="action-button secondary"
+						:title="isFilterCollapsed ? 'Show Filters' : 'Hide Filters'"
+					>
+						<i
+							:class="isFilterCollapsed ? 'bi bi-chevron-down' : 'bi bi-chevron-up'"
+						></i>
 					</button>
 				</div>
 			</div>
@@ -40,7 +56,12 @@
 				</div>
 			</div>
 
-			<filter-bar :filter="filter" :tasks="allTasks" @update:filter="updateFilter" />
+			<filter-bar
+				:filter="filter"
+				:tasks="allTasks"
+				:is-collapsed="isFilterCollapsed"
+				@update:filter="updateFilter"
+			/>
 		</div>
 
 		<!-- Settings Modal -->
@@ -191,6 +212,7 @@ const boardId = "main";
 const showFileInput = ref(false);
 const showSettings = ref(false);
 const fileInput = ref<HTMLInputElement>();
+const isFilterCollapsed = ref(false);
 
 const allTasks = ref<TodoTask[]>([]);
 const boardConfig = ref<BoardConfig>(getDefaultBoardConfig());
@@ -435,29 +457,49 @@ onMounted(() => {
 	box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
 }
 
-.toolbar-actions {
+.toolbar-header {
 	padding: 16px 24px;
 	display: flex;
-	justify-content: flex-end;
+	justify-content: space-between;
+	align-items: center;
+	gap: 20px;
+}
+
+.app-title {
+	margin: 0;
+	font-size: 24px;
+	font-weight: 700;
+	color: #2c3e50;
+	display: flex;
+	align-items: center;
+	gap: 8px;
 }
 
 .action-buttons {
 	display: flex;
 	gap: 12px;
+	flex-wrap: wrap;
 }
 
 .action-button {
 	display: flex;
 	align-items: center;
-	gap: 8px;
-	padding: 10px 16px;
+	justify-content: center;
+	padding: 10px;
 	border: none;
 	border-radius: 8px;
-	font-size: 13px;
+	font-size: 18px;
 	font-weight: 500;
 	cursor: pointer;
 	transition: all 0.2s ease-in-out;
 	text-decoration: none;
+	width: 40px;
+	height: 40px;
+	position: relative;
+}
+
+.action-button i {
+	font-size: 18px;
 }
 
 .action-button.primary {
@@ -595,17 +637,32 @@ onMounted(() => {
 
 /* Responsive */
 @media (max-width: 768px) {
-	.toolbar-actions {
+	.toolbar-header {
 		padding: 12px 16px;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 12px;
+	}
+
+	.app-title {
+		font-size: 20px;
 	}
 
 	.action-buttons {
 		gap: 8px;
+		width: 100%;
+		justify-content: flex-start;
 	}
 
 	.action-button {
-		padding: 8px 12px;
-		font-size: 12px;
+		padding: 8px;
+		width: 36px;
+		height: 36px;
+		flex: 0 0 auto;
+	}
+
+	.action-button i {
+		font-size: 16px;
 	}
 
 	.file-input-section {
