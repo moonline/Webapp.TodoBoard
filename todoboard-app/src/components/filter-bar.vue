@@ -50,11 +50,7 @@
 							<i class="bi bi-tags"></i>
 							Tag
 						</label>
-						<select
-							v-model="selectedTagKey"
-							class="filter-select"
-							@change="updateFilter"
-						>
+						<select v-model="selectedTag" class="filter-select" @change="onTagSelect">
 							<option value="">Select Tag</option>
 							<option v-for="tag in availableTags" :key="tag" :value="tag">
 								{{ tag }}
@@ -127,7 +123,7 @@ const emit = defineEmits<{
 }>();
 
 const localFilter = ref<Filter>({ ...props.filter });
-const selectedTagKey = ref("");
+const selectedTag = ref("");
 
 const availableProjects = computed(() => {
 	const projects = new Set<string>();
@@ -146,11 +142,11 @@ const availableContexts = computed(() => {
 });
 
 const availableTags = computed(() => {
-	const tags = new Set<string>();
-	props.tasks.forEach((task) => {
-		Object.keys(task.tags).forEach((tag) => tags.add(tag));
-	});
-	return Array.from(tags).sort();
+	return props.tasks
+		.flatMap((task) => Object.entries(task.tags))
+		.map(([key, value]) => `${key}:${value}`)
+		.filter((tag, index, self) => self.indexOf(tag) === index)
+		.sort();
 });
 
 const hasActiveFilters = computed(() => {
@@ -165,9 +161,18 @@ function updateFilter(): void {
 	emit("update:filter", { ...localFilter.value });
 }
 
+function onTagSelect(): void {
+	if (selectedTag.value) {
+		const [key, value] = selectedTag.value.split(":");
+		localFilter.value.tags[key] = value;
+		selectedTag.value = "";
+		updateFilter();
+	}
+}
+
 function clearFilters(): void {
 	localFilter.value = { projects: [], contexts: [], tags: {} };
-	selectedTagKey.value = "";
+	selectedTag.value = "";
 	updateFilter();
 }
 
