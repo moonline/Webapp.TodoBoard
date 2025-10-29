@@ -6,7 +6,22 @@
 	</div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { onMounted } from "vue";
+import { provideTasks } from "@/composables/useTasks";
+import { provideUI } from "@/composables/useUI";
+
+// Provide global state to all child components
+const tasks = provideTasks("main");
+provideUI();
+
+// Load initial data from localStorage
+onMounted(() => {
+	tasks.loadTasksFromStorage();
+	tasks.loadBoardConfigFromStorage();
+	tasks.loadFilterFromStorage();
+});
+</script>
 
 <style scoped>
 .app {
