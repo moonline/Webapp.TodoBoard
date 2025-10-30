@@ -1,14 +1,15 @@
 import { provide, inject, ref, type InjectionKey, type Ref } from "vue";
 
+export type ActiveTab = "board" | "settings";
+
 export interface UIState {
-	showSettings: Readonly<Ref<boolean>>;
+	activeTab: Readonly<Ref<ActiveTab>>;
 	showFileInput: Readonly<Ref<boolean>>;
 	isFilterCollapsed: Readonly<Ref<boolean>>;
 }
 
 export interface UIActions {
-	openSettings: () => void;
-	closeSettings: () => void;
+	setActiveTab: (tab: ActiveTab) => void;
 	openFileInput: () => void;
 	closeFileInput: () => void;
 	toggleFilterCollapse: () => void;
@@ -23,22 +24,19 @@ const UISymbol: InjectionKey<UIContext> = Symbol("ui");
  * Provider composable - Use this in the root component (App.vue)
  */
 export function provideUI() {
-	// Modal/Dialog State
-	const showSettings = ref(false);
-	const showFileInput = ref(false);
+	// Tab State
+	const activeTab = ref<ActiveTab>("board");
 
-	// Layout State
+	// UI State
+	const showFileInput = ref(false);
 	const isFilterCollapsed = ref(false);
 
-	// Modal Actions
-	function openSettings(): void {
-		showSettings.value = true;
+	// Tab Actions
+	function setActiveTab(tab: ActiveTab): void {
+		activeTab.value = tab;
 	}
 
-	function closeSettings(): void {
-		showSettings.value = false;
-	}
-
+	// UI Actions
 	function openFileInput(): void {
 		showFileInput.value = true;
 	}
@@ -47,7 +45,6 @@ export function provideUI() {
 		showFileInput.value = false;
 	}
 
-	// Layout Actions
 	function toggleFilterCollapse(): void {
 		isFilterCollapsed.value = !isFilterCollapsed.value;
 	}
@@ -58,12 +55,11 @@ export function provideUI() {
 
 	const context: UIContext = {
 		// State - consumers should use actions to mutate, not direct assignment
-		showSettings: showSettings as Readonly<Ref<boolean>>,
+		activeTab: activeTab as Readonly<Ref<ActiveTab>>,
 		showFileInput: showFileInput as Readonly<Ref<boolean>>,
 		isFilterCollapsed: isFilterCollapsed as Readonly<Ref<boolean>>,
 		// Actions
-		openSettings,
-		closeSettings,
+		setActiveTab,
 		openFileInput,
 		closeFileInput,
 		toggleFilterCollapse,
