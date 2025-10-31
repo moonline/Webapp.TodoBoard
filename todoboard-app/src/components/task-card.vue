@@ -18,6 +18,9 @@
 					{{ formatDate(task.dueDate) }}
 				</span>
 			</div>
+			<button @click.stop="$emit('edit')" class="edit-button" title="Edit task">
+				<i class="bi bi-pencil"></i>
+			</button>
 		</div>
 
 		<!-- Task Description -->
@@ -71,6 +74,10 @@ import type { TodoTask } from "@/types/todo";
 
 const props = defineProps<{
 	task: TodoTask;
+}>();
+
+defineEmits<{
+	edit: [];
 }>();
 
 const hasAnyTags = computed(() => {
@@ -137,6 +144,32 @@ function getPriorityClass(priority: string): string {
 /* Header Section */
 .task-header {
 	margin-bottom: 12px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.edit-button {
+	background: transparent;
+	border: none;
+	color: #6c757d;
+	cursor: pointer;
+	padding: 6px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 6px;
+	transition: all 0.2s ease;
+	opacity: 0;
+}
+
+.task-card:hover .edit-button {
+	opacity: 1;
+}
+
+.edit-button:hover {
+	background: #f8f9fa;
+	color: #0d6efd;
 }
 
 .priority-badge {

@@ -16,13 +16,18 @@
 		</div>
 
 		<div v-else class="board">
-			<BoardColumnComponent v-for="column in columns" :key="column.id" :column="column" />
+			<BoardColumnComponent
+				v-for="column in columns"
+				:key="column.id"
+				:column="column"
+				@edit-task="$emit('edit-task', $event)"
+			/>
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-import type { BoardColumn } from "@/types/todo";
+import type { BoardColumn, TodoTask } from "@/types/todo";
 import BoardColumnComponent from "./board-column.vue";
 
 defineProps<{
@@ -31,6 +36,7 @@ defineProps<{
 
 defineEmits<{
 	"create-sample-tasks": [];
+	"edit-task": [task: TodoTask];
 }>();
 </script>
 

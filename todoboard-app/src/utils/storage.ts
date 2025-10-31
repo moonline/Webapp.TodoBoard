@@ -1,4 +1,5 @@
 import type { BoardConfig, TodoTask, Filter } from "@/types/todo";
+import { ColumnType } from "@/types/todo";
 
 const STORAGE_PREFIX = "todoboard";
 
@@ -23,32 +24,21 @@ export function loadBoardConfig(boardId: string): BoardConfig | null {
 
 	try {
 		const config = JSON.parse(stored) as BoardConfig;
-		// Migrate old configurations to include new properties
-		Object.keys(config.columns).forEach((key) => {
-			const column = config.columns[key];
-			if (!column.displayBehavior) {
-				column.displayBehavior = "always";
-			}
-			if (!column.color) {
-				// Set default colors based on column id
-				switch (key) {
-					case "todo":
-						column.color = "#6c757d";
-						break;
-					case "doing":
-						column.color = "#fd7e14";
-						break;
-					case "done":
-						column.color = "#198754";
-						break;
-					case "none":
-						column.color = "#adb5bd";
-						break;
-					default:
-						column.color = "#6c757d";
-				}
-			}
-		});
+
+		// Migrate old config to new structure
+		if (!config.groupingTag) {
+			// Old config detected, migrate to new structure
+			console.log("Migrating old board config to new structure");
+			return null; // Return null to force using default config
+		}
+
+		// Ensure all columns have required fields
+		const hasOldColumns = Object.values(config.columns).some((column) => !column.type);
+		if (hasOldColumns) {
+			console.log("Old column structure detected, using default config");
+			return null;
+		}
+
 		return config;
 	} catch (error) {
 		console.error("Error loading board config:", error);
@@ -73,44 +63,61 @@ export function clearBoard(boardId: string): void {
 
 export function getDefaultBoardConfig(): BoardConfig {
 	return {
-		columnBy: "status",
+		groupingTag: "status",
 		sortBy: [{ field: "priority", direction: "asc" }],
 		columns: {
-			todo: {
-				id: "todo",
-				title: "To Do",
-				icon: "📝",
+			uncategorized: {
+				id: "uncategorized",
+				type: ColumnType.Uncategorized,
+				title: "Uncategorized",
+				icon: "❓",
 				color: "#6c757d",
 				visible: true,
-				displayBehavior: "always",
+				displayBehavior: "whenTasks",
 				order: 0,
 			},
-			doing: {
-				id: "doing",
-				title: "Doing",
-				icon: "⚡",
+			planning: {
+				id: "planning",
+				type: ColumnType.Tag,
+				title: "Planning",
+				icon: "📋",
 				color: "#fd7e14",
 				visible: true,
 				displayBehavior: "always",
 				order: 1,
+				tagValue: "planning",
 			},
-			done: {
-				id: "done",
-				title: "Done",
-				icon: "✅",
-				color: "#198754",
+			waiting: {
+				id: "waiting",
+				type: ColumnType.Tag,
+				title: "Waiting",
+				icon: "⏳",
+				color: "#dc3545",
 				visible: true,
-				displayBehavior: "whenTasks",
+				displayBehavior: "always",
 				order: 2,
+				tagValue: "waiting",
 			},
-			none: {
-				id: "none",
-				title: "Untagged",
-				icon: "❓",
-				color: "#adb5bd",
+			doing: {
+				id: "doing",
+				type: ColumnType.Tag,
+				title: "Doing",
+				icon: "⚡",
+				color: "#0d6efd",
+				visible: true,
+				displayBehavior: "always",
+				order: 3,
+				tagValue: "doing",
+			},
+			completed: {
+				id: "completed",
+				type: ColumnType.Completed,
+				title: "Completed",
+				icon: "✅",
+				color: "#20b2aa",
 				visible: true,
 				displayBehavior: "whenTasks",
-				order: 3,
+				order: 4,
 			},
 		},
 	};

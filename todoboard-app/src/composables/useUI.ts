@@ -29,7 +29,7 @@ export function provideUI() {
 
 	// UI State
 	const showFileInput = ref(false);
-	const isFilterCollapsed = ref(false);
+	const isFilterCollapsed = ref(true);
 
 	// Tab Actions
 	function setActiveTab(tab: ActiveTab): void {

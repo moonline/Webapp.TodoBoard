@@ -14,20 +14,27 @@ export interface TodoTask {
 
 export type DisplayBehavior = "always" | "whenTasks" | "hide";
 
+export enum ColumnType {
+	Uncategorized = "uncategorized",
+	Completed = "completed",
+	Tag = "tag",
+}
+
 export interface BoardColumn {
 	id: string;
+	type: ColumnType;
 	title: string;
 	icon: string;
-	color?: string;
+	color: string;
 	visible: boolean;
 	displayBehavior: DisplayBehavior;
 	order: number;
+	tagValue?: string; // For tag columns: the tag value to match
 	tasks: TodoTask[];
 }
 
 export interface BoardConfig {
-	columnBy: "priority" | "project" | "context" | "status";
-	customColumnKey?: string;
+	groupingTag: string; // Tag to use for grouping tag columns (e.g., "status")
 	sortBy: Array<{
 		field: "priority" | "project" | "context" | "createdDate" | string;
 		direction: "asc" | "desc";

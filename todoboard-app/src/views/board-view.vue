@@ -40,6 +40,7 @@
 			<TodoBoard
 				:columns="visibleColumns"
 				@create-sample-tasks="tasksStore.createSampleTasks"
+				@edit-task="handleEditTask"
 			/>
 		</div>
 
@@ -47,26 +48,38 @@
 		<div v-show="activeTab === 'settings'" class="tab-content">
 			<SettingsView :board-config="boardConfig" @save="saveSettings" />
 		</div>
+
+		<!-- Edit Task Modal -->
+		<EditTaskModal
+			:is-open="isEditModalOpen"
+			:task="selectedTask"
+			@close="closeEditModal"
+			@save="handleSaveTask"
+		/>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import type { TodoTask, BoardColumn, BoardConfig, Filter } from "@/types/todo";
-import { getColumnValue } from "@/utils/todo-parser";
 import { useTasks } from "@/composables/useTasks";
 import { useUI } from "@/composables/useUI";
 import CompactToolbar from "@/components/compact-toolbar.vue";
 import SettingsView from "@/components/settings-view.vue";
 import TodoBoard from "@/components/todo-board.vue";
+import EditTaskModal from "@/components/edit-task-modal.vue";
 
 // Access global state via composables
 const tasksStore = useTasks();
 const uiStore = useUI();
 
 // Destructure for easier access
-const { allTasks, boardConfig, filter, tasks, sortTasksByConfig } = tasksStore;
+const { allTasks, boardConfig, filter, tasks, sortTasksByConfig, updateTask } = tasksStore;
 const { activeTab, showFileInput, isFilterCollapsed } = uiStore;
+
+// Edit task modal state
+const isEditModalOpen = ref(false);
+const selectedTask = ref<TodoTask | null>(null);
 
 const visibleColumns = computed(() => {
 	const columnMap = new Map<string, TodoTask[]>();
@@ -76,15 +89,53 @@ const visibleColumns = computed(() => {
 		columnMap.set(key, []);
 	});
 
+	// Track which tasks have been assigned to columns
+	const assignedTaskIds = new Set<string>();
+
 	// Distribute tasks into columns
 	tasks.value.forEach((task) => {
-		const columnValue = getColumnValue(task, boardConfig.value.columnBy);
-		if (!columnMap.has(columnValue)) {
-			columnMap.set(columnValue, []);
+		// Check if task belongs to completed column
+		if (task.completed) {
+			const completedColumn = Object.entries(boardConfig.value.columns).find(
+				([, config]) => config.type === "completed"
+			);
+			if (completedColumn) {
+				const completedTasks = columnMap.get(completedColumn[0]);
+				if (completedTasks) {
+					completedTasks.push(task);
+					assignedTaskIds.add(task.id);
+				}
+			}
+			return;
 		}
-		const existingTasks = columnMap.get(columnValue);
-		if (existingTasks) {
-			existingTasks.push(task);
+
+		// Check if task belongs to a tag column
+		const groupingTagValue = task.tags[boardConfig.value.groupingTag];
+		if (groupingTagValue) {
+			const matchingColumn = Object.entries(boardConfig.value.columns).find(
+				([, config]) => config.type === "tag" && config.tagValue === groupingTagValue
+			);
+			if (matchingColumn) {
+				const matchingTasks = columnMap.get(matchingColumn[0]);
+				if (matchingTasks) {
+					matchingTasks.push(task);
+					assignedTaskIds.add(task.id);
+				}
+				return;
+			}
+		}
+
+		// If task doesn't match any column, add to uncategorized
+		if (!assignedTaskIds.has(task.id)) {
+			const uncategorizedColumn = Object.entries(boardConfig.value.columns).find(
+				([, config]) => config.type === "uncategorized"
+			);
+			if (uncategorizedColumn) {
+				const uncategorizedTasks = columnMap.get(uncategorizedColumn[0]);
+				if (uncategorizedTasks) {
+					uncategorizedTasks.push(task);
+				}
+			}
 		}
 	});
 
@@ -134,6 +185,21 @@ function saveSettings(config: BoardConfig): void {
 	// Optionally switch back to board view after saving
 	// uiStore.setActiveTab('board');
 }
+
+function handleEditTask(task: TodoTask): void {
+	selectedTask.value = task;
+	isEditModalOpen.value = true;
+}
+
+function closeEditModal(): void {
+	isEditModalOpen.value = false;
+	selectedTask.value = null;
+}
+
+function handleSaveTask(taskId: string, rawText: string): void {
+	updateTask(taskId, rawText);
+	closeEditModal();
+}
 </script>
 
 <style scoped>
@@ -152,12 +218,12 @@ function saveSettings(config: BoardConfig): void {
 	padding: 16px 24px 0;
 	display: flex;
 	justify-content: space-between;
-	align-items: flex-end;
+	align-items: center;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .app-title {
-	margin: 0 0 12px 0;
+	margin: 0;
 	font-size: 24px;
 	font-weight: 700;
 	color: #2c3e50;
@@ -204,7 +270,7 @@ function saveSettings(config: BoardConfig): void {
 	background: white;
 	color: #0d6efd;
 	border-color: #dee2e6;
-	border-bottom-color: white;
+	border-bottom: none;
 	z-index: 1;
 }
 

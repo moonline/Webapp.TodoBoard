@@ -29,6 +29,7 @@ export interface TasksActions {
 	downloadTasks: () => void;
 	createSampleTasks: () => void;
 	sortTasksByConfig: (tasks: TodoTask[], config: BoardConfig) => TodoTask[];
+	updateTask: (taskId: string, rawText: string) => void;
 }
 
 export interface TasksContext extends TasksState, TasksActions {}
@@ -148,15 +149,16 @@ export function provideTasks(boardId = "main") {
 	}
 
 	function createSampleTasks(): void {
-		const sampleTodoText = `(A) Call Mom +family @home status:todo
+		const sampleTodoText = `(A) Call Mom +family @home status:planning
 x Write documentation +work @computer
-(B) Buy groceries +personal @errands due:2024-01-15 status:todo
+(B) Buy groceries +personal @errands due:2024-01-15 status:planning
 x 2024-01-10 2024-01-08 Submit quarterly report +work @computer
 Setup meeting with team +work @office status:doing
 Review pull requests +work @computer status:doing
-Deploy to production +work @computer status:done
-(C) Plan vacation +personal @home status:todo
-Fix critical bug +work @computer status:doing priority:high`;
+Design new feature +work @computer status:waiting
+(C) Plan vacation +personal @home status:planning
+Fix critical bug +work @computer status:doing priority:high
+Wait for client feedback +work @email status:waiting`;
 
 		setTasks(parseTodoText(sampleTodoText));
 	}
@@ -200,6 +202,28 @@ Fix critical bug +work @computer status:doing priority:high`;
 		});
 	}
 
+	function updateTask(taskId: string, rawText: string): void {
+		const taskIndex = allTasks.value.findIndex((task) => task.id === taskId);
+		if (taskIndex === -1) {
+			return;
+		}
+
+		// Parse the updated raw text to get the new task data
+		const parsedTasks = parseTodoText(rawText);
+		if (parsedTasks.length === 0) {
+			return;
+		}
+
+		// Get the parsed task and preserve the original ID
+		const updatedTask = parsedTasks[0];
+		updatedTask.id = taskId;
+
+		// Update the task in the array
+		const updatedTasks = [...allTasks.value];
+		updatedTasks[taskIndex] = updatedTask;
+		setTasks(updatedTasks);
+	}
+
 	const context: TasksContext = {
 		// State - consumers should use actions to mutate, not direct assignment
 		allTasks: allTasks as Readonly<Ref<TodoTask[]>>,
@@ -217,6 +241,7 @@ Fix critical bug +work @computer status:doing priority:high`;
 		downloadTasks,
 		createSampleTasks,
 		sortTasksByConfig,
+		updateTask,
 	};
 
 	provide(TasksSymbol, context);

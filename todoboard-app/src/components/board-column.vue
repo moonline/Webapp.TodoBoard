@@ -41,17 +41,26 @@
 				<div class="empty-icon">{{ column.icon }}</div>
 				<p class="empty-message">No tasks yet</p>
 			</div>
-			<task-card v-for="task in column.tasks" :key="task.id" :task="task" />
+			<task-card
+				v-for="task in column.tasks"
+				:key="task.id"
+				:task="task"
+				@edit="$emit('edit-task', task)"
+			/>
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-import type { BoardColumn } from "@/types/todo";
+import type { BoardColumn, TodoTask } from "@/types/todo";
 import TaskCard from "./task-card.vue";
 
 defineProps<{
 	column: BoardColumn;
+}>();
+
+defineEmits<{
+	"edit-task": [task: TodoTask];
 }>();
 
 function getTextColor(backgroundColor: string): string {
