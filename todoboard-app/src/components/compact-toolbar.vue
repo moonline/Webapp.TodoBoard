@@ -11,6 +11,14 @@
 				<span class="button-text">Load</span>
 			</button>
 			<button
+				@click="$emit('create-task')"
+				class="toolbar-button success"
+				title="Create new task"
+			>
+				<i class="bi bi-plus-circle"></i>
+				<span class="button-text">Create Task</span>
+			</button>
+			<button
 				@click="$emit('download')"
 				class="toolbar-button"
 				:disabled="!hasDownloadableTasks"
@@ -69,6 +77,7 @@ defineProps<{
 
 const emit = defineEmits<{
 	"load-file": [];
+	"create-task": [];
 	download: [];
 	"toggle-filter": [];
 	"cancel-file-input": [];
@@ -136,6 +145,17 @@ function handleFileUpload(event: Event): void {
 .toolbar-button.primary:hover {
 	background: #0b5ed7;
 	border-color: #0b5ed7;
+}
+
+.toolbar-button.success {
+	background: #198754;
+	color: white;
+	border-color: #198754;
+}
+
+.toolbar-button.success:hover {
+	background: #157347;
+	border-color: #157347;
 }
 
 .toolbar-button i {

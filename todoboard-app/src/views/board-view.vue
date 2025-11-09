@@ -30,6 +30,7 @@
 				:show-file-input="showFileInput"
 				:has-downloadable-tasks="tasks.length > 0"
 				@load-file="uiStore.openFileInput"
+				@create-task="handleCreateTask"
 				@download="tasksStore.downloadTasks"
 				@toggle-filter="uiStore.toggleFilterCollapse"
 				@cancel-file-input="uiStore.closeFileInput"
@@ -54,8 +55,10 @@
 		<EditTaskModal
 			:is-open="isEditModalOpen"
 			:task="selectedTask"
+			:mode="modalMode"
 			@close="closeEditModal"
 			@save="handleSaveTask"
+			@create="handleCreateNewTask"
 		/>
 	</div>
 </template>
@@ -66,7 +69,7 @@ import type { TodoTask, BoardColumn, BoardConfig, Filter } from "@/types/todo";
 import { ColumnType } from "@/types/todo";
 import { useTasks } from "@/composables/useTasks";
 import { useUI } from "@/composables/useUI";
-import { buildRawTodoText } from "@/utils/todo-parser";
+import { buildRawTodoText, parseTodoText } from "@/utils/todo-parser";
 import CompactToolbar from "@/components/compact-toolbar.vue";
 import SettingsView from "@/components/settings-view.vue";
 import TodoBoard from "@/components/todo-board.vue";
@@ -83,6 +86,7 @@ const { activeTab, showFileInput, isFilterCollapsed } = uiStore;
 // Edit task modal state
 const isEditModalOpen = ref(false);
 const selectedTask = ref<TodoTask | null>(null);
+const modalMode = ref<"edit" | "create">("edit");
 
 const visibleColumns = computed(() => {
 	const columnMap = new Map<string, TodoTask[]>();
@@ -189,7 +193,14 @@ function saveSettings(config: BoardConfig): void {
 	// uiStore.setActiveTab('board');
 }
 
+function handleCreateTask(): void {
+	modalMode.value = "create";
+	selectedTask.value = null;
+	isEditModalOpen.value = true;
+}
+
 function handleEditTask(task: TodoTask): void {
+	modalMode.value = "edit";
 	selectedTask.value = task;
 	isEditModalOpen.value = true;
 }
@@ -197,10 +208,18 @@ function handleEditTask(task: TodoTask): void {
 function closeEditModal(): void {
 	isEditModalOpen.value = false;
 	selectedTask.value = null;
+	modalMode.value = "edit";
 }
 
 function handleSaveTask(taskId: string, rawText: string): void {
 	updateTask(taskId, rawText);
+	closeEditModal();
+}
+
+function handleCreateNewTask(rawText: string): void {
+	const existingTasks = allTasks.value;
+	const newTasks = [...existingTasks, ...parseTodoText(rawText)];
+	tasksStore.setTasks(newTasks);
 	closeEditModal();
 }
 

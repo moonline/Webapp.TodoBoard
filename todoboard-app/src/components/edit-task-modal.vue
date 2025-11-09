@@ -3,8 +3,8 @@
 		<div class="edit-modal-dialog">
 			<div class="edit-modal-header">
 				<h2 class="modal-title">
-					<i class="bi bi-pencil-square"></i>
-					Edit Task
+					<i :class="mode === 'create' ? 'bi bi-plus-square' : 'bi bi-pencil-square'"></i>
+					{{ mode === "create" ? "Create Task" : "Edit Task" }}
 				</h2>
 				<button @click="handleCancel" class="close-button" aria-label="Close">
 					<i class="bi bi-x-lg"></i>
@@ -55,7 +55,7 @@
 					:disabled="!editedText.trim()"
 				>
 					<i class="bi bi-check-circle"></i>
-					Save Changes
+					{{ mode === "create" ? "Create Task" : "Save Changes" }}
 				</button>
 			</div>
 		</div>
@@ -66,14 +66,21 @@
 import { ref, watch } from "vue";
 import type { TodoTask } from "@/types/todo";
 
-const props = defineProps<{
-	isOpen: boolean;
-	task: TodoTask | null;
-}>();
+const props = withDefaults(
+	defineProps<{
+		isOpen: boolean;
+		task: TodoTask | null;
+		mode?: "edit" | "create";
+	}>(),
+	{
+		mode: "edit",
+	}
+);
 
 const emit = defineEmits<{
 	close: [];
 	save: [taskId: string, rawText: string];
+	create: [rawText: string];
 }>();
 
 const editedText = ref("");
@@ -84,17 +91,36 @@ watch(
 	(newTask) => {
 		if (newTask) {
 			editedText.value = newTask.raw;
+		} else {
+			editedText.value = "";
 		}
 	},
 	{ immediate: true }
 );
 
+// Clear text when switching to create mode
+watch(
+	() => props.mode,
+	(newMode) => {
+		if (newMode === "create") {
+			editedText.value = "";
+		}
+	}
+);
+
 function handleCancel(): void {
 	emit("close");
+	editedText.value = "";
 }
 
 function handleSave(): void {
-	if (props.task && editedText.value.trim()) {
+	if (!editedText.value.trim()) {
+		return;
+	}
+
+	if (props.mode === "create") {
+		emit("create", editedText.value.trim());
+	} else if (props.task) {
 		emit("save", props.task.id, editedText.value.trim());
 	}
 }
