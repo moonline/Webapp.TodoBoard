@@ -1,5 +1,11 @@
 <template>
-	<div class="task-card" :class="{ completed: task.completed }">
+	<div
+		class="task-card"
+		:class="{ completed: task.completed, dragging: isDragging }"
+		draggable="true"
+		@dragstart="handleDragStart"
+		@dragend="handleDragEnd"
+	>
 		<!-- Priority and Status Indicators -->
 		<div class="task-header">
 			<div class="d-flex align-items-center gap-2">
@@ -69,7 +75,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import type { TodoTask } from "@/types/todo";
 
 const props = defineProps<{
@@ -79,6 +85,22 @@ const props = defineProps<{
 defineEmits<{
 	edit: [];
 }>();
+
+const isDragging = ref(false);
+
+function handleDragStart(event: DragEvent): void {
+	if (!event.dataTransfer) {
+		return;
+	}
+
+	isDragging.value = true;
+	event.dataTransfer.effectAllowed = "move";
+	event.dataTransfer.setData("application/json", JSON.stringify(props.task));
+}
+
+function handleDragEnd(): void {
+	isDragging.value = false;
+}
 
 const hasAnyTags = computed(() => {
 	return (
@@ -120,7 +142,7 @@ function getPriorityClass(priority: string): string {
 	border-radius: 12px;
 	padding: 16px;
 	margin-bottom: 12px;
-	cursor: pointer;
+	cursor: grab;
 	transition: all 0.2s ease-in-out;
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
 }
@@ -129,6 +151,12 @@ function getPriorityClass(priority: string): string {
 	transform: translateY(-2px);
 	box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
 	border-color: #dee2e6;
+}
+
+.task-card.dragging {
+	opacity: 0.5;
+	cursor: grabbing;
+	transform: rotate(3deg);
 }
 
 .task-card.completed {

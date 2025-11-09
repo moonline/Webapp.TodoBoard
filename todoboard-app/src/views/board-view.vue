@@ -41,6 +41,7 @@
 				:columns="visibleColumns"
 				@create-sample-tasks="tasksStore.createSampleTasks"
 				@edit-task="handleEditTask"
+				@task-drop="handleTaskDrop"
 			/>
 		</div>
 
@@ -62,8 +63,10 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import type { TodoTask, BoardColumn, BoardConfig, Filter } from "@/types/todo";
+import { ColumnType } from "@/types/todo";
 import { useTasks } from "@/composables/useTasks";
 import { useUI } from "@/composables/useUI";
+import { buildRawTodoText } from "@/utils/todo-parser";
 import CompactToolbar from "@/components/compact-toolbar.vue";
 import SettingsView from "@/components/settings-view.vue";
 import TodoBoard from "@/components/todo-board.vue";
@@ -199,6 +202,54 @@ function closeEditModal(): void {
 function handleSaveTask(taskId: string, rawText: string): void {
 	updateTask(taskId, rawText);
 	closeEditModal();
+}
+
+function handleTaskDrop(task: TodoTask, targetColumn: BoardColumn): void {
+	// Create a copy of the task to modify
+	const modifiedTask = { ...task };
+
+	// Get today's date for completion date if needed
+	const today = new Date().toISOString().split("T")[0];
+
+	// Modify task based on the target column type
+	switch (targetColumn.type) {
+		case ColumnType.Tag:
+			// Set the grouping tag to the column's tag value
+			if (targetColumn.tagValue) {
+				modifiedTask.tags = { ...modifiedTask.tags };
+				modifiedTask.tags[boardConfig.value.groupingTag] = targetColumn.tagValue;
+			}
+			// Unmark as completed if it was completed
+			if (modifiedTask.completed) {
+				modifiedTask.completed = false;
+				modifiedTask.completedDate = null;
+			}
+			break;
+
+		case ColumnType.Completed:
+			// Mark task as completed
+			modifiedTask.completed = true;
+			modifiedTask.completedDate = today;
+			// Remove the grouping tag
+			modifiedTask.tags = { ...modifiedTask.tags };
+			delete modifiedTask.tags[boardConfig.value.groupingTag];
+			break;
+
+		case ColumnType.Uncategorized:
+			// Remove the grouping tag
+			modifiedTask.tags = { ...modifiedTask.tags };
+			delete modifiedTask.tags[boardConfig.value.groupingTag];
+			// Unmark as completed if it was completed
+			if (modifiedTask.completed) {
+				modifiedTask.completed = false;
+				modifiedTask.completedDate = null;
+			}
+			break;
+	}
+
+	// Rebuild the raw todo.txt format and update the task
+	const newRawText = buildRawTodoText(modifiedTask);
+	updateTask(task.id, newRawText);
 }
 </script>
 

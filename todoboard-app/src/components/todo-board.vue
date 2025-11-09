@@ -21,6 +21,7 @@
 				:key="column.id"
 				:column="column"
 				@edit-task="$emit('edit-task', $event)"
+				@task-drop="(task, column) => $emit('task-drop', task, column)"
 			/>
 		</div>
 	</div>
@@ -37,6 +38,7 @@ defineProps<{
 defineEmits<{
 	"create-sample-tasks": [];
 	"edit-task": [task: TodoTask];
+	"task-drop": [task: TodoTask, column: BoardColumn];
 }>();
 </script>
 

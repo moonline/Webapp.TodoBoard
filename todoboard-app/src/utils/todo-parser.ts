@@ -58,3 +58,54 @@ export function getColumnValue(task: TodoTask, columnBy: string): string {
 			return task.tags[columnBy] || "none";
 	}
 }
+
+export function buildRawTodoText(task: TodoTask): string {
+	const parts: string[] = [];
+
+	// Completion marker
+	if (task.completed) {
+		parts.push("x");
+	}
+
+	// Priority
+	if (task.priority && !task.completed) {
+		parts.push(`(${task.priority})`);
+	}
+
+	// Completion date (only if completed)
+	if (task.completed && task.completedDate) {
+		parts.push(task.completedDate);
+	}
+
+	// Creation date
+	if (task.createdDate) {
+		parts.push(task.createdDate);
+	}
+
+	// Description
+	parts.push(task.description);
+
+	// Projects
+	task.projects.forEach((project) => {
+		parts.push(`+${project}`);
+	});
+
+	// Contexts
+	task.contexts.forEach((context) => {
+		parts.push(`@${context}`);
+	});
+
+	// Tags (exclude 'due' since we handle it separately)
+	Object.entries(task.tags).forEach(([key, value]) => {
+		if (key !== "due") {
+			parts.push(`${key}:${value}`);
+		}
+	});
+
+	// Due date
+	if (task.dueDate) {
+		parts.push(`due:${task.dueDate}`);
+	}
+
+	return parts.join(" ");
+}

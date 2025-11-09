@@ -36,7 +36,13 @@
 			</div>
 		</div>
 
-		<div class="column-content">
+		<div
+			class="column-content"
+			:class="{ 'drag-over': isDragOver }"
+			@dragover.prevent="handleDragOver"
+			@dragleave="handleDragLeave"
+			@drop="handleDrop"
+		>
 			<div v-if="column.tasks.length === 0" class="empty-state">
 				<div class="empty-icon">{{ column.icon }}</div>
 				<p class="empty-message">No tasks yet</p>
@@ -52,16 +58,50 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import type { BoardColumn, TodoTask } from "@/types/todo";
 import TaskCard from "./task-card.vue";
 
-defineProps<{
+const props = defineProps<{
 	column: BoardColumn;
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
 	"edit-task": [task: TodoTask];
+	"task-drop": [task: TodoTask, column: BoardColumn];
 }>();
+
+const isDragOver = ref(false);
+
+function handleDragOver(event: DragEvent): void {
+	if (!event.dataTransfer) {
+		return;
+	}
+
+	event.dataTransfer.dropEffect = "move";
+	isDragOver.value = true;
+}
+
+function handleDragLeave(): void {
+	isDragOver.value = false;
+}
+
+function handleDrop(event: DragEvent): void {
+	event.preventDefault();
+	isDragOver.value = false;
+
+	if (!event.dataTransfer) {
+		return;
+	}
+
+	try {
+		const taskData = event.dataTransfer.getData("application/json");
+		const task = JSON.parse(taskData) as TodoTask;
+		emit("task-drop", task, props.column);
+	} catch (error) {
+		console.error("Error parsing dropped task data:", error);
+	}
+}
 
 function getTextColor(backgroundColor: string): string {
 	// Convert hex to RGB
@@ -159,6 +199,12 @@ function getTextColor(backgroundColor: string): string {
 	overflow-y: auto;
 	scrollbar-width: thin;
 	scrollbar-color: #e9ecef transparent;
+	transition: background-color 0.2s ease-in-out;
+}
+
+.column-content.drag-over {
+	background: #f0f8ff;
+	box-shadow: inset 0 0 0 2px #0d6efd;
 }
 
 .column-content::-webkit-scrollbar {
