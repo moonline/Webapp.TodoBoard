@@ -40,6 +40,7 @@
 				@create-sample-tasks="tasksStore.createSampleTasks"
 				@edit-task="handleEditTask"
 				@task-drop="handleTaskDrop"
+				@update-priority="handleUpdatePriority"
 			/>
 		</div>
 
@@ -261,6 +262,15 @@ function handleTaskDrop(task: TodoTask, targetColumn: BoardColumn): void {
 			}
 			break;
 	}
+
+	// Rebuild the raw todo.txt format and update the task
+	const newRawText = buildRawTodoText(modifiedTask);
+	updateTask(task.id, newRawText);
+}
+
+function handleUpdatePriority(task: TodoTask, newPriority: string | null): void {
+	// Create a copy of the task to modify
+	const modifiedTask = { ...task, priority: newPriority };
 
 	// Rebuild the raw todo.txt format and update the task
 	const newRawText = buildRawTodoText(modifiedTask);

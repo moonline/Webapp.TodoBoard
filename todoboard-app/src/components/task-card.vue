@@ -9,13 +9,29 @@
 		<!-- Priority and Status Indicators -->
 		<div class="task-header">
 			<div class="d-flex align-items-center gap-2">
-				<span
-					v-if="task.priority"
-					class="priority-badge"
-					:class="getPriorityClass(task.priority)"
-				>
-					{{ task.priority }}
-				</span>
+				<div v-if="task.priority" class="priority-container">
+					<span class="priority-badge" :class="getPriorityClass(task.priority)">
+						{{ task.priority }}
+					</span>
+					<div class="priority-controls">
+						<button
+							@click.stop="handleRaisePriority"
+							class="priority-button"
+							:disabled="!canRaisePriority"
+							title="Raise priority"
+						>
+							<i class="bi bi-caret-up-fill"></i>
+						</button>
+						<button
+							@click.stop="handleLowerPriority"
+							class="priority-button"
+							:disabled="!canLowerPriority"
+							title="Lower priority"
+						>
+							<i class="bi bi-caret-down-fill"></i>
+						</button>
+					</div>
+				</div>
 				<span v-if="task.completed" class="status-badge completed">
 					<i class="bi bi-check-circle-fill"></i>
 				</span>
@@ -82,8 +98,9 @@ const props = defineProps<{
 	task: TodoTask;
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
 	edit: [];
+	updatePriority: [newPriority: string | null];
 }>();
 
 const isDragging = ref(false);
@@ -132,6 +149,40 @@ function getPriorityClass(priority: string): string {
 		default:
 			return "priority-default";
 	}
+}
+
+const canRaisePriority = computed(() => {
+	if (!props.task.priority) {
+		return false;
+	}
+	const currentCharCode = props.task.priority.toUpperCase().charCodeAt(0);
+	return currentCharCode > 65; // Can raise if priority is not 'A'
+});
+
+const canLowerPriority = computed(() => {
+	if (!props.task.priority) {
+		return false;
+	}
+	const currentCharCode = props.task.priority.toUpperCase().charCodeAt(0);
+	return currentCharCode < 90; // Can lower if priority is not 'Z'
+});
+
+function handleRaisePriority(): void {
+	if (!props.task.priority || !canRaisePriority.value) {
+		return;
+	}
+	const currentCharCode = props.task.priority.toUpperCase().charCodeAt(0);
+	const newPriority = String.fromCharCode(currentCharCode - 1);
+	emit("updatePriority", newPriority);
+}
+
+function handleLowerPriority(): void {
+	if (!props.task.priority || !canLowerPriority.value) {
+		return;
+	}
+	const currentCharCode = props.task.priority.toUpperCase().charCodeAt(0);
+	const newPriority = String.fromCharCode(currentCharCode + 1);
+	emit("updatePriority", newPriority);
 }
 </script>
 
@@ -200,6 +251,12 @@ function getPriorityClass(priority: string): string {
 	color: #0d6efd;
 }
 
+.priority-container {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
 .priority-badge {
 	display: inline-flex;
 	align-items: center;
@@ -211,6 +268,44 @@ function getPriorityClass(priority: string): string {
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
+}
+
+.priority-controls {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	opacity: 0;
+	transition: opacity 0.2s ease;
+}
+
+.task-card:hover .priority-controls {
+	opacity: 1;
+}
+
+.priority-button {
+	background: transparent;
+	border: none;
+	color: #6c757d;
+	cursor: pointer;
+	padding: 0;
+	width: 16px;
+	height: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 3px;
+	transition: all 0.2s ease;
+	font-size: 10px;
+}
+
+.priority-button:hover:not(:disabled) {
+	background: #f8f9fa;
+	color: #0d6efd;
+}
+
+.priority-button:disabled {
+	opacity: 0.3;
+	cursor: not-allowed;
 }
 
 .priority-high {

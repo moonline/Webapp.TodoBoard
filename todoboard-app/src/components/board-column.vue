@@ -52,6 +52,7 @@
 				:key="task.id"
 				:task="task"
 				@edit="$emit('edit-task', task)"
+				@update-priority="(newPriority) => $emit('update-priority', task, newPriority)"
 			/>
 		</div>
 	</div>
@@ -69,6 +70,7 @@ const props = defineProps<{
 const emit = defineEmits<{
 	"edit-task": [task: TodoTask];
 	"task-drop": [task: TodoTask, column: BoardColumn];
+	"update-priority": [task: TodoTask, newPriority: string | null];
 }>();
 
 const isDragOver = ref(false);

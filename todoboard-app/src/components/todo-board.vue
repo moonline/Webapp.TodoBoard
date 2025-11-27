@@ -22,6 +22,9 @@
 				:column="column"
 				@edit-task="$emit('edit-task', $event)"
 				@task-drop="(task, column) => $emit('task-drop', task, column)"
+				@update-priority="
+					(task, newPriority) => $emit('update-priority', task, newPriority)
+				"
 			/>
 		</div>
 	</div>
@@ -39,6 +42,7 @@ defineEmits<{
 	"create-sample-tasks": [];
 	"edit-task": [task: TodoTask];
 	"task-drop": [task: TodoTask, column: BoardColumn];
+	"update-priority": [task: TodoTask, newPriority: string | null];
 }>();
 </script>
 
