@@ -3,11 +3,7 @@
 		<div class="toolbar-header">
 			<h1 class="app-title">📋 TodoBoard</h1>
 			<div class="action-buttons">
-				<button
-					@click="$emit('load-file')"
-					class="action-button primary"
-					title="Load todo.txt"
-				>
+				<button @click="openFilePicker" class="action-button primary" title="Load todo.txt">
 					<i class="bi bi-folder-plus"></i>
 				</button>
 				<button
@@ -35,22 +31,14 @@
 			</div>
 		</div>
 
-		<!-- File Input -->
-		<div v-if="showFileInput" class="file-input-section">
-			<div class="file-input-container">
-				<input
-					ref="fileInput"
-					type="file"
-					accept=".txt"
-					@change="handleFileUpload"
-					class="file-input"
-				/>
-				<button @click="$emit('cancel-file-input')" class="cancel-button">
-					<i class="bi bi-x"></i>
-					Cancel
-				</button>
-			</div>
-		</div>
+		<!-- Hidden File Input -->
+		<input
+			ref="fileInput"
+			type="file"
+			accept=".txt"
+			@change="handleFileUpload"
+			class="hidden-file-input"
+		/>
 
 		<filter-bar
 			:filter="filter"
@@ -70,21 +58,22 @@ const props = defineProps<{
 	filter: Filter;
 	tasks: TodoTask[];
 	isFilterCollapsed: boolean;
-	showFileInput: boolean;
 	hasDownloadableTasks: boolean;
 }>();
 
 const emit = defineEmits<{
-	"load-file": [];
 	download: [];
 	"open-settings": [];
 	"toggle-filter": [];
-	"cancel-file-input": [];
 	"update:filter": [filter: Filter];
 	"file-upload": [event: Event];
 }>();
 
 const fileInput = ref<HTMLInputElement>();
+
+function openFilePicker(): void {
+	fileInput.value?.click();
+}
 
 function handleFileUpload(event: Event): void {
 	emit("file-upload", event);
@@ -178,52 +167,9 @@ function handleFileUpload(event: Event): void {
 	transform: none !important;
 }
 
-/* File Input Section */
-.file-input-section {
-	padding: 0 24px 16px;
-	border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.file-input-container {
-	display: flex;
-	gap: 12px;
-	align-items: center;
-}
-
-.file-input {
-	flex: 1;
-	padding: 10px 12px;
-	border: 2px solid #e9ecef;
-	border-radius: 8px;
-	background: white;
-	font-size: 13px;
-	transition: all 0.2s ease-in-out;
-}
-
-.file-input:focus {
-	outline: none;
-	border-color: #0d6efd;
-	box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
-}
-
-.cancel-button {
-	display: flex;
-	align-items: center;
-	gap: 6px;
-	padding: 10px 16px;
-	background: rgba(220, 53, 69, 0.1);
-	color: #dc3545;
-	border: 1px solid rgba(220, 53, 69, 0.2);
-	border-radius: 8px;
-	font-size: 13px;
-	font-weight: 500;
-	cursor: pointer;
-	transition: all 0.2s ease-in-out;
-}
-
-.cancel-button:hover {
-	background: rgba(220, 53, 69, 0.15);
-	transform: translateY(-1px);
+/* Hidden File Input */
+.hidden-file-input {
+	display: none;
 }
 
 /* Responsive */
@@ -254,10 +200,6 @@ function handleFileUpload(event: Event): void {
 
 	.action-button i {
 		font-size: 16px;
-	}
-
-	.file-input-section {
-		padding: 0 16px 12px;
 	}
 }
 </style>

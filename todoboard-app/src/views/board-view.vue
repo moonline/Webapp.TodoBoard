@@ -27,13 +27,10 @@
 				:filter="filter"
 				:tasks="allTasks"
 				:is-filter-collapsed="isFilterCollapsed"
-				:show-file-input="showFileInput"
 				:has-downloadable-tasks="tasks.length > 0"
-				@load-file="uiStore.openFileInput"
 				@create-task="handleCreateTask"
 				@download="tasksStore.downloadTasks"
 				@toggle-filter="uiStore.toggleFilterCollapse"
-				@cancel-file-input="uiStore.closeFileInput"
 				@update:filter="updateFilter"
 				@file-upload="handleFileUpload"
 			/>
@@ -81,7 +78,7 @@ const uiStore = useUI();
 
 // Destructure for easier access
 const { allTasks, boardConfig, filter, tasks, sortTasksByConfig, updateTask } = tasksStore;
-const { activeTab, showFileInput, isFilterCollapsed } = uiStore;
+const { activeTab, isFilterCollapsed } = uiStore;
 
 // Edit task modal state
 const isEditModalOpen = ref(false);
@@ -176,7 +173,6 @@ async function handleFileUpload(event: Event): Promise<void> {
 
 	try {
 		await tasksStore.uploadFile(file);
-		uiStore.closeFileInput();
 		// File input is reset in compact-toolbar component
 	} catch (error) {
 		console.error("Error uploading file:", error);

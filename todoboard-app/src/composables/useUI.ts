@@ -4,14 +4,11 @@ export type ActiveTab = "board" | "settings";
 
 export interface UIState {
 	activeTab: Readonly<Ref<ActiveTab>>;
-	showFileInput: Readonly<Ref<boolean>>;
 	isFilterCollapsed: Readonly<Ref<boolean>>;
 }
 
 export interface UIActions {
 	setActiveTab: (tab: ActiveTab) => void;
-	openFileInput: () => void;
-	closeFileInput: () => void;
 	toggleFilterCollapse: () => void;
 	setFilterCollapsed: (collapsed: boolean) => void;
 }
@@ -28,7 +25,6 @@ export function provideUI() {
 	const activeTab = ref<ActiveTab>("board");
 
 	// UI State
-	const showFileInput = ref(false);
 	const isFilterCollapsed = ref(true);
 
 	// Tab Actions
@@ -37,14 +33,6 @@ export function provideUI() {
 	}
 
 	// UI Actions
-	function openFileInput(): void {
-		showFileInput.value = true;
-	}
-
-	function closeFileInput(): void {
-		showFileInput.value = false;
-	}
-
 	function toggleFilterCollapse(): void {
 		isFilterCollapsed.value = !isFilterCollapsed.value;
 	}
@@ -56,12 +44,9 @@ export function provideUI() {
 	const context: UIContext = {
 		// State - consumers should use actions to mutate, not direct assignment
 		activeTab: activeTab as Readonly<Ref<ActiveTab>>,
-		showFileInput: showFileInput as Readonly<Ref<boolean>>,
 		isFilterCollapsed: isFilterCollapsed as Readonly<Ref<boolean>>,
 		// Actions
 		setActiveTab,
-		openFileInput,
-		closeFileInput,
 		toggleFilterCollapse,
 		setFilterCollapsed,
 	};
