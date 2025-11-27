@@ -65,6 +65,7 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import type { TodoTask } from "@/types/todo";
+import { buildRawTodoText } from "@/utils/todo-parser";
 
 const props = withDefaults(
 	defineProps<{
@@ -85,12 +86,22 @@ const emit = defineEmits<{
 
 const editedText = ref("");
 
+function getCurrentDateString(): string {
+	return new Date().toISOString().split("T")[0];
+}
+
+function getDefaultTaskTemplate(): string {
+	const currentDate = getCurrentDateString();
+	return `(A) ${currentDate} `;
+}
+
 // Watch for task changes and update the edited text
 watch(
 	() => props.task,
 	(newTask) => {
 		if (newTask) {
-			editedText.value = newTask.raw;
+			// Rebuild raw text to ensure create date is always included
+			editedText.value = buildRawTodoText(newTask);
 		} else {
 			editedText.value = "";
 		}
@@ -98,12 +109,22 @@ watch(
 	{ immediate: true }
 );
 
-// Clear text when switching to create mode
+// Set default template when switching to create mode
 watch(
 	() => props.mode,
 	(newMode) => {
 		if (newMode === "create") {
-			editedText.value = "";
+			editedText.value = getDefaultTaskTemplate();
+		}
+	}
+);
+
+// Also set default template when modal opens in create mode
+watch(
+	() => props.isOpen,
+	(isOpen) => {
+		if (isOpen && props.mode === "create") {
+			editedText.value = getDefaultTaskTemplate();
 		}
 	}
 );

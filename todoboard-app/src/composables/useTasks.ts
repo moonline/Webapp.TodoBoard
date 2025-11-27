@@ -1,6 +1,6 @@
 import { provide, inject, ref, computed, type InjectionKey, type Ref, type ComputedRef } from "vue";
 import type { TodoTask, BoardConfig, Filter } from "@/types/todo";
-import { parseTodoText, serializeTodoTasks } from "@/utils/todo-parser";
+import { parseTodoText, serializeTodoTasks, buildRawTodoText } from "@/utils/todo-parser";
 import {
 	saveTasks,
 	loadTasks,
@@ -208,6 +208,8 @@ Wait for client feedback +work @email status:waiting`;
 			return;
 		}
 
+		const originalTask = allTasks.value[taskIndex];
+
 		// Parse the updated raw text to get the new task data
 		const parsedTasks = parseTodoText(rawText);
 		if (parsedTasks.length === 0) {
@@ -217,6 +219,24 @@ Wait for client feedback +work @email status:waiting`;
 		// Get the parsed task and preserve the original ID
 		const updatedTask = parsedTasks[0];
 		updatedTask.id = taskId;
+
+		// Preserve or set the createdDate
+		let needsRawRebuild = false;
+		if (updatedTask.createdDate === null) {
+			// If the new raw text doesn't have a createdDate, preserve the original or set current date
+			if (originalTask.createdDate !== null) {
+				updatedTask.createdDate = originalTask.createdDate;
+			} else {
+				const currentDate = new Date();
+				updatedTask.createdDate = currentDate.toISOString().split("T")[0];
+			}
+			needsRawRebuild = true;
+		}
+
+		// Rebuild raw text if we modified the createdDate
+		if (needsRawRebuild) {
+			updatedTask.raw = buildRawTodoText(updatedTask);
+		}
 
 		// Update the task in the array
 		const updatedTasks = [...allTasks.value];

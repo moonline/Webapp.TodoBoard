@@ -7,6 +7,7 @@ function formatDateToString(date: Date): string {
 
 export function parseTodoText(todoText: string): TodoTask[] {
 	const taskList = TaskList.parse(todoText);
+	const currentDate = formatDateToString(new Date());
 
 	return taskList.items.map((task: Task, index: number) => {
 		const tags: Record<string, string> = {};
@@ -19,20 +20,28 @@ export function parseTodoText(todoText: string): TodoTask[] {
 		}
 
 		const dueDate = task.dueDate ? formatDateToString(task.dueDate) : null;
+		const createdDate = task.creationDate ? formatDateToString(task.creationDate) : currentDate;
 
-		return {
+		const todoTask: TodoTask = {
 			id: `task-${index}-${Date.now()}`,
 			raw: task.raw || "",
 			priority: task.priority || null,
 			completed: task.isComplete || false,
 			completedDate: task.completionDate ? formatDateToString(task.completionDate) : null,
-			createdDate: task.creationDate ? formatDateToString(task.creationDate) : null,
+			createdDate,
 			description: task.body || "",
 			projects: task.projects || [],
 			contexts: task.contexts || [],
 			tags,
 			dueDate,
 		};
+
+		// Rebuild raw text if we had to set the createdDate
+		if (task.creationDate === null) {
+			todoTask.raw = buildRawTodoText(todoTask);
+		}
+
+		return todoTask;
 	});
 }
 
