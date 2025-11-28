@@ -10,6 +10,7 @@ import {
 	loadFilter,
 	getDefaultBoardConfig,
 } from "@/utils/storage";
+import { downloadFile } from "@/utils/file-download";
 
 export interface TasksState {
 	allTasks: Readonly<Ref<TodoTask[]>>;
@@ -26,7 +27,7 @@ export interface TasksActions {
 	setBoardConfig: (config: BoardConfig) => void;
 	setFilter: (filter: Filter) => void;
 	uploadFile: (file: File) => Promise<void>;
-	downloadTasks: () => void;
+	downloadTasks: () => Promise<void>;
 	createSampleTasks: () => void;
 	sortTasksByConfig: (tasks: TodoTask[], config: BoardConfig) => TodoTask[];
 	updateTask: (taskId: string, rawText: string) => void;
@@ -134,18 +135,9 @@ export function provideTasks(boardId = "main") {
 		});
 	}
 
-	function downloadTasks(): void {
+	async function downloadTasks(): Promise<void> {
 		const content = serializeTodoTasks(allTasks.value);
-		const blob = new Blob([content], { type: "text/plain" });
-		const url = URL.createObjectURL(blob);
-
-		const a = document.createElement("a");
-		a.href = url;
-		a.download = "todo.txt";
-		document.body.appendChild(a);
-		a.click();
-		document.body.removeChild(a);
-		URL.revokeObjectURL(url);
+		await downloadFile(content, "todo.txt", "text/plain");
 	}
 
 	function createSampleTasks(): void {
