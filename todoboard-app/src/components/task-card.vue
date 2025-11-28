@@ -81,10 +81,23 @@
 		</div>
 
 		<!-- Footer -->
-		<div v-if="task.createdDate" class="task-footer">
-			<span class="created-date">
+		<div
+			v-if="task.createdDate || task.completedDate"
+			class="task-footer d-flex justify-content-between align-items-center gap-2 pt-2 border-top"
+		>
+			<span
+				v-if="task.createdDate"
+				class="text-secondary small d-flex align-items-center gap-1"
+			>
 				<i class="bi bi-clock"></i>
 				{{ formatDate(task.createdDate) }}
+			</span>
+			<span
+				v-if="task.completedDate"
+				class="text-success small d-flex align-items-center gap-1"
+			>
+				<i class="bi bi-check-circle"></i>
+				{{ formatDate(task.completedDate) }}
 			</span>
 		</div>
 	</div>
@@ -402,16 +415,7 @@ function handleLowerPriority(): void {
 
 /* Footer Section */
 .task-footer {
-	padding-top: 8px;
-	border-top: 1px solid #f1f3f4;
-}
-
-.created-date {
-	color: #6c757d;
-	font-size: 11px;
-	display: flex;
-	align-items: center;
-	gap: 4px;
+	border-top-color: #f1f3f4;
 }
 
 /* Bootstrap Icons Fallback */

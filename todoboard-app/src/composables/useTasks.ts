@@ -212,20 +212,35 @@ Wait for client feedback +work @email status:waiting`;
 		const updatedTask = parsedTasks[0];
 		updatedTask.id = taskId;
 
-		// Preserve or set the createdDate
+		const currentDate = new Date().toISOString().split("T")[0];
 		let needsRawRebuild = false;
+
+		// Preserve or set the createdDate
 		if (updatedTask.createdDate === null) {
 			// If the new raw text doesn't have a createdDate, preserve the original or set current date
 			if (originalTask.createdDate !== null) {
 				updatedTask.createdDate = originalTask.createdDate;
 			} else {
-				const currentDate = new Date();
-				updatedTask.createdDate = currentDate.toISOString().split("T")[0];
+				updatedTask.createdDate = currentDate;
 			}
 			needsRawRebuild = true;
 		}
 
-		// Rebuild raw text if we modified the createdDate
+		// Handle completion date when task is marked as completed
+		if (updatedTask.completed && !updatedTask.completedDate) {
+			// Task is marked as completed but has no completion date - add today's date
+			updatedTask.completedDate = currentDate;
+			needsRawRebuild = true;
+		}
+
+		// Handle completion date when task is unmarked as completed
+		if (!updatedTask.completed && updatedTask.completedDate) {
+			// Task is not completed but has a completion date - remove it
+			updatedTask.completedDate = null;
+			needsRawRebuild = true;
+		}
+
+		// Rebuild raw text if we modified any dates
 		if (needsRawRebuild) {
 			updatedTask.raw = buildRawTodoText(updatedTask);
 		}
