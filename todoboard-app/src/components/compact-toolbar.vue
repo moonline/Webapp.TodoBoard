@@ -24,6 +24,15 @@
 				<span class="button-text">Download</span>
 			</button>
 			<button
+				@click="handleClearBoard"
+				class="toolbar-button danger"
+				:disabled="!hasDownloadableTasks"
+				title="Clear board"
+			>
+				<i class="bi bi-trash"></i>
+				<span class="button-text">Clear Board</span>
+			</button>
+			<button
 				@click="$emit('toggle-filter')"
 				class="toolbar-button"
 				:title="isFilterCollapsed ? 'Show Filters' : 'Hide Filters'"
@@ -67,6 +76,7 @@ defineProps<{
 const emit = defineEmits<{
 	"create-task": [];
 	download: [];
+	"clear-board": [];
 	"toggle-filter": [];
 	"update:filter": [filter: Filter];
 	"file-upload": [event: Event];
@@ -84,6 +94,10 @@ function handleFileUpload(event: Event): void {
 	if (fileInput.value) {
 		fileInput.value.value = "";
 	}
+}
+
+function handleClearBoard(): void {
+	emit("clear-board");
 }
 </script>
 

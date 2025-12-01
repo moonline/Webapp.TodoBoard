@@ -47,7 +47,9 @@
 
 		<!-- Task Description -->
 		<div class="task-content">
-			<p class="task-description">{{ task.description }}</p>
+			<div class="task-description">
+				<MarkdownRenderer :content="task.description" />
+			</div>
 
 			<!-- Tags Section -->
 			<div v-if="hasAnyTags" class="tags-section">
@@ -106,6 +108,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import type { TodoTask } from "@/types/todo";
+import MarkdownRenderer from "./markdown-renderer.vue";
 
 const props = defineProps<{
 	task: TodoTask;

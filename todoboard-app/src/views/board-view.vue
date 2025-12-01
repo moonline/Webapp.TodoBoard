@@ -30,6 +30,7 @@
 				:has-downloadable-tasks="tasks.length > 0"
 				@create-task="handleCreateTask"
 				@download="tasksStore.downloadTasks"
+				@clear-board="handleClearBoardRequest"
 				@toggle-filter="uiStore.toggleFilterCollapse"
 				@update:filter="updateFilter"
 				@file-upload="handleFileUpload"
@@ -58,6 +59,18 @@
 			@save="handleSaveTask"
 			@create="handleCreateNewTask"
 		/>
+
+		<!-- Confirm Clear Board Modal -->
+		<ConfirmModal
+			:is-open="isConfirmClearOpen"
+			title="Clear Board"
+			message="Are you sure you want to clear the board? All tasks will be permanently deleted. This action cannot be undone."
+			confirm-text="Clear Board"
+			cancel-text="Cancel"
+			variant="danger"
+			@confirm="handleConfirmClear"
+			@cancel="handleCancelClear"
+		/>
 	</div>
 </template>
 
@@ -72,6 +85,7 @@ import CompactToolbar from "@/components/compact-toolbar.vue";
 import SettingsView from "@/components/settings-view.vue";
 import TodoBoard from "@/components/todo-board.vue";
 import EditTaskModal from "@/components/edit-task-modal.vue";
+import ConfirmModal from "@/components/confirm-modal.vue";
 
 // Access global state via composables
 const tasksStore = useTasks();
@@ -85,6 +99,9 @@ const { activeTab, isFilterCollapsed } = uiStore;
 const isEditModalOpen = ref(false);
 const selectedTask = ref<TodoTask | null>(null);
 const modalMode = ref<"edit" | "create">("edit");
+
+// Confirm clear board modal state
+const isConfirmClearOpen = ref(false);
 
 const visibleColumns = computed(() => {
 	const columnMap = new Map<string, TodoTask[]>();
@@ -275,6 +292,19 @@ function handleUpdatePriority(task: TodoTask, newPriority: string | null): void 
 	// Rebuild the raw todo.txt format and update the task
 	const newRawText = buildRawTodoText(modifiedTask);
 	updateTask(task.id, newRawText);
+}
+
+function handleClearBoardRequest(): void {
+	isConfirmClearOpen.value = true;
+}
+
+function handleConfirmClear(): void {
+	tasksStore.clearTasks();
+	isConfirmClearOpen.value = false;
+}
+
+function handleCancelClear(): void {
+	isConfirmClearOpen.value = false;
 }
 </script>
 

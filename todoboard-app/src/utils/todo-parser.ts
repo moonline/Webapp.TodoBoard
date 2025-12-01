@@ -68,6 +68,24 @@ export function getColumnValue(task: TodoTask, columnBy: string): string {
 	}
 }
 
+/**
+ * Convert raw todo.txt text to editable format (with actual newlines)
+ * Used when loading a task into the edit modal
+ */
+export function rawTextToEditableFormat(rawText: string): string {
+	// Replace escaped newlines (\\n) with actual newlines
+	return rawText.replace(/\\n/g, "\n");
+}
+
+/**
+ * Convert editable text (with actual newlines) to proper todo.txt format
+ * Used when saving a task from the edit modal
+ */
+export function editableFormatToRawText(editableText: string): string {
+	// Replace actual newlines with escaped newlines (\\n)
+	return editableText.replace(/\r?\n/g, "\\n");
+}
+
 export function buildRawTodoText(task: TodoTask): string {
 	const parts: string[] = [];
 
@@ -91,8 +109,16 @@ export function buildRawTodoText(task: TodoTask): string {
 		parts.push(task.createdDate);
 	}
 
-	// Description
-	parts.push(task.description);
+	// Description - escape newlines if present
+	// This allows markdown content to be preserved in the todo.txt format
+	const description = task.description.trim();
+	if (description.includes("\n") || description.includes("\r")) {
+		// Replace actual newlines with escaped newlines (\\n)
+		const escaped = description.replace(/\r?\n/g, "\\n");
+		parts.push(escaped);
+	} else {
+		parts.push(description);
+	}
 
 	// Projects
 	task.projects.forEach((project) => {

@@ -29,6 +29,7 @@ export interface TasksActions {
 	uploadFile: (file: File) => Promise<void>;
 	downloadTasks: () => Promise<void>;
 	createSampleTasks: () => void;
+	clearTasks: () => void;
 	sortTasksByConfig: (tasks: TodoTask[], config: BoardConfig) => TodoTask[];
 	updateTask: (taskId: string, rawText: string) => void;
 }
@@ -155,6 +156,10 @@ Wait for client feedback +work @email status:waiting`;
 		setTasks(parseTodoText(sampleTodoText));
 	}
 
+	function clearTasks(): void {
+		setTasks([]);
+	}
+
 	function sortTasksByConfig(tasks: TodoTask[], config: BoardConfig): TodoTask[] {
 		return [...tasks].sort((a, b) => {
 			for (const sort of config.sortBy) {
@@ -267,6 +272,7 @@ Wait for client feedback +work @email status:waiting`;
 		uploadFile,
 		downloadTasks,
 		createSampleTasks,
+		clearTasks,
 		sortTasksByConfig,
 		updateTask,
 	};

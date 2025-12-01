@@ -15,7 +15,10 @@
 				<div class="form-group">
 					<label for="task-text" class="form-label">
 						Task (todo.txt format)
-						<span class="help-text">Edit the raw todo.txt format below</span>
+						<span class="help-text"
+							>Edit the raw todo.txt format below. Line breaks will be preserved for
+							markdown formatting.</span
+						>
 					</label>
 					<textarea
 						id="task-text"
@@ -65,7 +68,11 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import type { TodoTask } from "@/types/todo";
-import { buildRawTodoText } from "@/utils/todo-parser";
+import {
+	buildRawTodoText,
+	rawTextToEditableFormat,
+	editableFormatToRawText,
+} from "@/utils/todo-parser";
 
 const props = withDefaults(
 	defineProps<{
@@ -101,7 +108,9 @@ watch(
 	(newTask) => {
 		if (newTask) {
 			// Rebuild raw text to ensure create date is always included
-			editedText.value = buildRawTodoText(newTask);
+			const rawText = buildRawTodoText(newTask);
+			// Convert escaped newlines to actual newlines for editing
+			editedText.value = rawTextToEditableFormat(rawText);
 		} else {
 			editedText.value = "";
 		}
@@ -139,10 +148,13 @@ function handleSave(): void {
 		return;
 	}
 
+	// Convert actual newlines to escaped newlines for todo.txt format
+	const rawText = editableFormatToRawText(editedText.value.trim());
+
 	if (props.mode === "create") {
-		emit("create", editedText.value.trim());
+		emit("create", rawText);
 	} else if (props.task) {
-		emit("save", props.task.id, editedText.value.trim());
+		emit("save", props.task.id, rawText);
 	}
 }
 </script>

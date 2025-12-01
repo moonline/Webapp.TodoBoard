@@ -15,6 +15,14 @@
 					<i class="bi bi-download"></i>
 				</button>
 				<button
+					@click="handleClearBoard"
+					class="action-button danger"
+					:disabled="!hasDownloadableTasks"
+					title="Clear board"
+				>
+					<i class="bi bi-trash"></i>
+				</button>
+				<button
 					@click="$emit('open-settings')"
 					class="action-button secondary"
 					title="Settings"
@@ -63,6 +71,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
 	download: [];
+	"clear-board": [];
 	"open-settings": [];
 	"toggle-filter": [];
 	"update:filter": [filter: Filter];
@@ -80,6 +89,16 @@ function handleFileUpload(event: Event): void {
 	// Reset the file input so the same file can be loaded again
 	if (fileInput.value) {
 		fileInput.value.value = "";
+	}
+}
+
+function handleClearBoard(): void {
+	if (
+		confirm(
+			"Are you sure you want to clear the board? All tasks will be permanently deleted. This action cannot be undone."
+		)
+	) {
+		emit("clear-board");
 	}
 }
 </script>
@@ -158,6 +177,17 @@ function handleFileUpload(event: Event): void {
 
 .action-button.secondary:hover:not(:disabled) {
 	background: rgba(108, 117, 125, 0.15);
+	transform: translateY(-1px);
+}
+
+.action-button.danger {
+	background: rgba(220, 53, 69, 0.1);
+	color: #dc3545;
+	border: 1px solid rgba(220, 53, 69, 0.2);
+}
+
+.action-button.danger:hover:not(:disabled) {
+	background: rgba(220, 53, 69, 0.15);
 	transform: translateY(-1px);
 }
 
