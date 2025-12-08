@@ -7,16 +7,18 @@ x 2025-11-19 2025-10-15 Store todos and settings in localstorage +Persistence
 x 2025-11-19 2025-11-07 Creation of new tasks +Tasks
 x 2025-11-28 2025-11-19 Create- and completion date<br>Add create date to new tasks if not set and completion date when closing +Tasks
 x 2025-11-19 Drag and drop of tasks between columns +Board
-(C) 2025-11-19 Image batches for projects and context\n\nAllow to configure images for projects and contexts (BS icons/unicode/url) +Tasks +Settings
+(C) 2025-11-19 Image thumbnails for projects and context\n\nAllow to configure images for projects and contexts (BS icons/unicode/url) +Tasks +Settings
 (B) 2025-11-19 Load tasks from parameter\n* Allow application to be started with parameter `todos=some.domain.tld/a-file.todo.txt`\n* If there are no tasks, tasks should be loaded from the indiciated URL +Tasks +ImportExport
 x 2025-12-01 2025-11-19 Start from scratch\n\nAllow to clean the board and/or settings and start from scratch +Board
 (B) 2025-11-19 Import/Export settings to json file +Settings +ImportExport
 x 2025-12-01 2025-11-19 **Task description formatting**\nBasic formatting support (Markdown?)\n* https://github.com/mundimark/awesome-markdown-alternatives\n* https://www.npmjs.com/package/markdown-it\n +Tasks
 (B) 2025-11-20 Load settings from parameter\n\nAllow application to be started with parameter `settings=some.domain.tld/a-settings-file.json` and override current settings. +Settings +ImportExport
 x 2025-11-28 2025-11-20 Priority buttons<br>Add buttons to task preview to raise/lower priority directly +Tasks +Priority +Board
-(D) 2025-11-20 Task background\n\nAdd support for background styling tags like and +Tasks +Board +Design `background-image:url("paper.gif")`, `background:url(data `background-color:coral` `opacity:0.5`
+(D) 2025-11-20 Task background\n\nAdd support for background styling tags like `background-image=paper.gif`, `background-image=data-url`, `background-color=coral`, `opacity=0.5` +Tasks +Board +Design
 (D) 2025-11-20 Enhanced task detail view\n\nEnhance task detail view: open on click instead of pencil, preview task above editor like on the board, render contexts, projects and tags, priority, creation and completion date +Tasks +DetailView
-(D) 2025-11-20 URL highlighting\n\nHighlight URLs and email addresses and convert to clickable links +Tasks +Board
+x 2025-12-08 2025-11-20 URL highlighting\n\nHighlight URLs and email addresses and convert to clickable links +Tasks +Board
 x 2025-11-28 2025-11-20 Enhance tasks download to allow save-as +ImportExport
 (A) 2025-11-28 Aggregation functions for tags\n* Allow the configuration of aggregation functions for one or multiple tags.\n* E.g. `sum`, `count` or `avg` tag.\n* Show agregated values in column headers (collapsable). +Board +Settings storypoints:5 status:planning
 (B) 2025-11-28 Refactor model to ensure best practices +Refactoring +Model
+(A) 2025-12-08 Compact mode\n\nImplement a toggle to show cards in compact mode: \n* Hide projects, context and tags\n* Shorten description\n* When clicked, tasks are toggled to be shown full +Task +Board
+x 2025-12-08 2025-12-08 Fix colon bug\n\nWhen a task contains a colon which does not correspond to a tag (followed by linebreak or white space), it is converted to an empty tag. Fix it by converting non-tag colons to &colon; +Task type:bug

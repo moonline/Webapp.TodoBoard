@@ -82,8 +82,16 @@ export function rawTextToEditableFormat(rawText: string): string {
  * Used when saving a task from the edit modal
  */
 export function editableFormatToRawText(editableText: string): string {
-	// Replace actual newlines with escaped newlines (\\n)
-	return editableText.replace(/\r?\n/g, "\\n");
+	// First, fix colons followed by non-space whitespace (tabs, newlines, etc.)
+	// Insert a space after the colon to prevent them from being parsed as tags
+	// This regex matches: colon followed by whitespace that is NOT a space
+	// We insert a space while keeping the original whitespace character
+	let result = editableText.replace(/:([\t\n\r\f\v])/g, ": $1");
+
+	// Then replace actual newlines with escaped newlines (\\n)
+	result = result.replace(/\r?\n/g, "\\n");
+
+	return result;
 }
 
 export function buildRawTodoText(task: TodoTask): string {
