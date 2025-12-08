@@ -27,21 +27,26 @@
 				:filter="filter"
 				:tasks="allTasks"
 				:is-filter-collapsed="isFilterCollapsed"
+				:is-compact-mode="isCompactMode"
 				:has-downloadable-tasks="tasks.length > 0"
 				@create-task="handleCreateTask"
 				@download="tasksStore.downloadTasks"
 				@clear-board="handleClearBoardRequest"
 				@toggle-filter="uiStore.toggleFilterCollapse"
+				@toggle-compact-mode="uiStore.toggleCompactMode"
 				@update:filter="updateFilter"
 				@file-upload="handleFileUpload"
 			/>
 
 			<TodoBoard
 				:columns="visibleColumns"
+				:is-compact-mode="isCompactMode"
+				:active-task-id="activeTaskId"
 				@create-sample-tasks="tasksStore.createSampleTasks"
 				@edit-task="handleEditTask"
 				@task-drop="handleTaskDrop"
 				@update-priority="handleUpdatePriority"
+				@toggle-task-active="handleToggleTaskActive"
 			/>
 		</div>
 
@@ -93,7 +98,7 @@ const uiStore = useUI();
 
 // Destructure for easier access
 const { allTasks, boardConfig, filter, tasks, sortTasksByConfig, updateTask } = tasksStore;
-const { activeTab, isFilterCollapsed } = uiStore;
+const { activeTab, isFilterCollapsed, isCompactMode, activeTaskId, setActiveTask } = uiStore;
 
 // Edit task modal state
 const isEditModalOpen = ref(false);
@@ -305,6 +310,15 @@ function handleConfirmClear(): void {
 
 function handleCancelClear(): void {
 	isConfirmClearOpen.value = false;
+}
+
+function handleToggleTaskActive(task: TodoTask): void {
+	// If clicking the same task, deactivate it; otherwise, set it as active
+	if (activeTaskId.value === task.id) {
+		setActiveTask(null);
+	} else {
+		setActiveTask(task.id);
+	}
 }
 </script>
 

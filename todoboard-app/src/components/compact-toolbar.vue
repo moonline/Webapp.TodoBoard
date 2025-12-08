@@ -32,14 +32,35 @@
 				<i class="bi bi-trash"></i>
 				<span class="button-text">Clear Board</span>
 			</button>
-			<button
-				@click="$emit('toggle-filter')"
-				class="toolbar-button"
-				:title="isFilterCollapsed ? 'Show Filters' : 'Hide Filters'"
-			>
-				<i :class="isFilterCollapsed ? 'bi bi-chevron-down' : 'bi bi-chevron-up'"></i>
-				<span class="button-text">{{ isFilterCollapsed ? "Show" : "Hide" }} Filters</span>
-			</button>
+
+			<!-- Toggle Switches -->
+			<div class="form-check form-switch ms-auto mb-0">
+				<input
+					class="form-check-input"
+					type="checkbox"
+					role="switch"
+					id="filterToggle"
+					:checked="!isFilterCollapsed"
+					@change="$emit('toggle-filter')"
+				/>
+				<label class="form-check-label toggle-label" for="filterToggle">
+					Show Filters
+				</label>
+			</div>
+
+			<div class="form-check form-switch mb-0">
+				<input
+					class="form-check-input"
+					type="checkbox"
+					role="switch"
+					id="compactToggle"
+					:checked="isCompactMode"
+					@change="$emit('toggle-compact-mode')"
+				/>
+				<label class="form-check-label toggle-label" for="compactToggle">
+					Compact Mode
+				</label>
+			</div>
 		</div>
 
 		<!-- Hidden File Input -->
@@ -70,6 +91,7 @@ defineProps<{
 	filter: Filter;
 	tasks: TodoTask[];
 	isFilterCollapsed: boolean;
+	isCompactMode: boolean;
 	hasDownloadableTasks: boolean;
 }>();
 
@@ -78,6 +100,7 @@ const emit = defineEmits<{
 	download: [];
 	"clear-board": [];
 	"toggle-filter": [];
+	"toggle-compact-mode": [];
 	"update:filter": [filter: Filter];
 	"file-upload": [event: Event];
 }>();
@@ -163,12 +186,43 @@ function handleClearBoard(): void {
 	border-color: #157347;
 }
 
+.toolbar-button.active {
+	background: #0d6efd;
+	color: white;
+	border-color: #0d6efd;
+}
+
+.toolbar-button.active:hover {
+	background: #0b5ed7;
+	border-color: #0b5ed7;
+}
+
 .toolbar-button i {
 	font-size: 14px;
 }
 
 .button-text {
 	white-space: nowrap;
+}
+
+/* Toggle Switches */
+.form-check {
+	padding-left: 3.5em;
+	display: flex;
+	align-items: center;
+}
+
+.form-check-input {
+	width: 3rem !important;
+	height: 1.75rem !important;
+}
+
+.toggle-label {
+	font-size: 13px;
+	font-weight: 500;
+	color: #495057;
+	user-select: none;
+	padding: 0.25rem;
 }
 
 /* Hidden File Input */
@@ -190,6 +244,10 @@ function handleClearBoard(): void {
 
 	.toolbar-button {
 		padding: 8px 10px;
+	}
+
+	.toggle-label {
+		display: none;
 	}
 }
 </style>

@@ -1,13 +1,20 @@
 <template>
 	<div
-		class="task-card"
-		:class="{ completed: task.completed, dragging: isDragging }"
+		class="task-card p-2"
+		:class="{
+			completed: task.completed,
+			dragging: isDragging,
+			compact: isCompactMode && !isActive,
+		}"
 		draggable="true"
 		@dragstart="handleDragStart"
 		@dragend="handleDragEnd"
+		@click="handleCardClick"
 	>
 		<!-- Priority and Status Indicators -->
-		<div class="task-header">
+		<div
+			class="task-header pb-2 mb-1 border-bottom d-flex justify-content-between align-items-center"
+		>
 			<div class="d-flex align-items-center gap-2">
 				<div v-if="task.priority" class="priority-container">
 					<span class="priority-badge" :class="getPriorityClass(task.priority)">
@@ -40,7 +47,7 @@
 					{{ formatDate(task.dueDate) }}
 				</span>
 			</div>
-			<button @click.stop="$emit('edit')" class="edit-button" title="Edit task">
+			<button @click.stop="$emit('edit')" class="edit-button py-0 px-2" title="Edit task">
 				<i class="bi bi-pencil"></i>
 			</button>
 		</div>
@@ -52,7 +59,7 @@
 			</div>
 
 			<!-- Tags Section -->
-			<div v-if="hasAnyTags" class="tags-section">
+			<div v-if="hasAnyTags && showTags" class="tags-section">
 				<!-- Projects -->
 				<div v-if="task.projects.length > 0" class="tag-group">
 					<span v-for="project in task.projects" :key="project" class="tag project-tag">
@@ -84,7 +91,7 @@
 
 		<!-- Footer -->
 		<div
-			v-if="task.createdDate || task.completedDate"
+			v-if="(task.createdDate || task.completedDate) && (!isCompactMode || isActive)"
 			class="task-footer d-flex justify-content-between align-items-center gap-2 pt-2 border-top"
 		>
 			<span
@@ -110,13 +117,22 @@ import { computed, ref } from "vue";
 import type { TodoTask } from "@/types/todo";
 import MarkdownRenderer from "./markdown-renderer.vue";
 
-const props = defineProps<{
-	task: TodoTask;
-}>();
+const props = withDefaults(
+	defineProps<{
+		task: TodoTask;
+		isCompactMode?: boolean;
+		isActive?: boolean;
+	}>(),
+	{
+		isCompactMode: false,
+		isActive: false,
+	}
+);
 
 const emit = defineEmits<{
 	edit: [];
 	updatePriority: [newPriority: string | null];
+	"toggle-active": [];
 }>();
 
 const isDragging = ref(false);
@@ -141,6 +157,11 @@ const hasAnyTags = computed(() => {
 		props.task.contexts.length > 0 ||
 		Object.keys(props.task.tags).length > 0
 	);
+});
+
+const showTags = computed(() => {
+	// Show tags if not in compact mode, or if this task is active
+	return !props.isCompactMode || props.isActive;
 });
 
 function formatDate(dateStr: string): string {
@@ -200,6 +221,13 @@ function handleLowerPriority(): void {
 	const newPriority = String.fromCharCode(currentCharCode + 1);
 	emit("updatePriority", newPriority);
 }
+
+function handleCardClick(): void {
+	// Only emit toggle-active if in compact mode
+	if (props.isCompactMode) {
+		emit("toggle-active");
+	}
+}
 </script>
 
 <style scoped>
@@ -207,7 +235,6 @@ function handleLowerPriority(): void {
 	background: #ffffff;
 	border: 1px solid #e9ecef;
 	border-radius: 12px;
-	padding: 16px;
 	margin-bottom: 12px;
 	cursor: grab;
 	transition: all 0.2s ease-in-out;
@@ -236,20 +263,33 @@ function handleLowerPriority(): void {
 	color: #6c757d;
 }
 
-/* Header Section */
-.task-header {
-	margin-bottom: 12px;
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
+/* Compact Mode */
+.task-card.compact {
+	cursor: pointer;
 }
 
+.task-card.compact .task-description {
+	position: relative;
+	max-height: 1.5em;
+	overflow: hidden;
+	line-height: 1.5;
+}
+
+.task-card.compact .task-description::after {
+	content: "...";
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	padding-left: 2.5rem;
+	background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1) 50%);
+}
+
+/* Header Section */
 .edit-button {
 	background: transparent;
 	border: none;
 	color: #6c757d;
 	cursor: pointer;
-	padding: 6px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -429,7 +469,6 @@ function handleLowerPriority(): void {
 /* Responsive adjustments */
 @media (max-width: 768px) {
 	.task-card {
-		padding: 12px;
 		margin-bottom: 8px;
 	}
 

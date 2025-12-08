@@ -20,11 +20,14 @@
 				v-for="column in columns"
 				:key="column.id"
 				:column="column"
+				:is-compact-mode="isCompactMode"
+				:active-task-id="activeTaskId"
 				@edit-task="$emit('edit-task', $event)"
 				@task-drop="(task, column) => $emit('task-drop', task, column)"
 				@update-priority="
 					(task, newPriority) => $emit('update-priority', task, newPriority)
 				"
+				@toggle-task-active="(task) => $emit('toggle-task-active', task)"
 			/>
 		</div>
 	</div>
@@ -36,6 +39,8 @@ import BoardColumnComponent from "./board-column.vue";
 
 defineProps<{
 	columns: BoardColumn[];
+	isCompactMode: boolean;
+	activeTaskId: string | null;
 }>();
 
 defineEmits<{
@@ -43,6 +48,7 @@ defineEmits<{
 	"edit-task": [task: TodoTask];
 	"task-drop": [task: TodoTask, column: BoardColumn];
 	"update-priority": [task: TodoTask, newPriority: string | null];
+	"toggle-task-active": [task: TodoTask];
 }>();
 </script>
 

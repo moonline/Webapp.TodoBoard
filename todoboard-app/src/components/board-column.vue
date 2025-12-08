@@ -1,13 +1,13 @@
 <template>
 	<div class="board-column">
 		<div
-			class="column-header"
+			class="column-header p-2"
 			:style="{
 				backgroundColor: column.color || '#f8f9fa',
 				'--text-color': getTextColor(column.color || '#f8f9fa'),
 			}"
 		>
-			<div class="header-content">
+			<div class="header-content d-flex align-items-center justify-content-between">
 				<div class="column-title-section">
 					<span class="column-icon">{{ column.icon }}</span>
 					<h6
@@ -37,7 +37,7 @@
 		</div>
 
 		<div
-			class="column-content"
+			class="column-content p-2"
 			:class="{ 'drag-over': isDragOver }"
 			@dragover.prevent="handleDragOver"
 			@dragleave="handleDragLeave"
@@ -51,8 +51,11 @@
 				v-for="task in column.tasks"
 				:key="task.id"
 				:task="task"
+				:is-compact-mode="isCompactMode"
+				:is-active="activeTaskId === task.id"
 				@edit="$emit('edit-task', task)"
 				@update-priority="(newPriority) => $emit('update-priority', task, newPriority)"
+				@toggle-active="$emit('toggle-task-active', task)"
 			/>
 		</div>
 	</div>
@@ -65,12 +68,15 @@ import TaskCard from "./task-card.vue";
 
 const props = defineProps<{
 	column: BoardColumn;
+	isCompactMode: boolean;
+	activeTaskId: string | null;
 }>();
 
 const emit = defineEmits<{
 	"edit-task": [task: TodoTask];
 	"task-drop": [task: TodoTask, column: BoardColumn];
 	"update-priority": [task: TodoTask, newPriority: string | null];
+	"toggle-task-active": [task: TodoTask];
 }>();
 
 const isDragOver = ref(false);
@@ -138,7 +144,6 @@ function getTextColor(backgroundColor: string): string {
 
 /* Column Header */
 .column-header {
-	padding: 16px;
 	position: relative;
 }
 
@@ -155,12 +160,6 @@ function getTextColor(backgroundColor: string): string {
 		rgba(255, 255, 255, 0.3) 50%,
 		transparent 100%
 	);
-}
-
-.header-content {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
 }
 
 .column-title-section {
@@ -196,7 +195,6 @@ function getTextColor(backgroundColor: string): string {
 /* Column Content */
 .column-content {
 	background: #ffffff;
-	padding: 16px;
 	height: calc(100vh - 240px);
 	overflow-y: auto;
 	scrollbar-width: thin;
@@ -257,12 +255,7 @@ function getTextColor(backgroundColor: string): string {
 		max-width: 240px;
 	}
 
-	.column-header {
-		padding: 12px;
-	}
-
 	.column-content {
-		padding: 12px;
 		height: calc(100vh - 200px);
 	}
 
