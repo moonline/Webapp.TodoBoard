@@ -28,6 +28,8 @@ export interface TasksActions {
 	setFilter: (filter: Filter) => void;
 	uploadFile: (file: File) => Promise<void>;
 	downloadTasks: () => Promise<void>;
+	uploadBoardConfig: (file: File) => Promise<void>;
+	downloadBoardConfig: () => Promise<void>;
 	createSampleTasks: () => void;
 	clearTasks: () => void;
 	sortTasksByConfig: (tasks: TodoTask[], config: BoardConfig) => TodoTask[];
@@ -139,6 +141,48 @@ export function provideTasks(boardId = "main") {
 	async function downloadTasks(): Promise<void> {
 		const content = serializeTodoTasks(allTasks.value);
 		await downloadFile(content, "todo.txt", "text/plain");
+	}
+
+	async function uploadBoardConfig(file: File): Promise<void> {
+		return new Promise((resolve, reject) => {
+			const reader = new FileReader();
+
+			reader.onload = (e) => {
+				try {
+					const content = e.target?.result as string;
+					if (content) {
+						const parsedConfig = JSON.parse(content) as BoardConfig;
+						// Validate that the parsed config has the required structure
+						if (
+							!parsedConfig.columns ||
+							!parsedConfig.groupingTag ||
+							!parsedConfig.sortBy
+						) {
+							throw new Error("Invalid board configuration file");
+						}
+						setBoardConfig(parsedConfig);
+						resolve();
+					} else {
+						reject(new Error("No content in file"));
+					}
+				} catch (error) {
+					console.error("Error parsing board config file:", error);
+					reject(error);
+				}
+			};
+
+			reader.onerror = (error) => {
+				console.error("Error reading file:", error);
+				reject(error);
+			};
+
+			reader.readAsText(file);
+		});
+	}
+
+	async function downloadBoardConfig(): Promise<void> {
+		const content = JSON.stringify(boardConfig.value, null, 2);
+		await downloadFile(content, "board.config.json", "application/json");
 	}
 
 	function createSampleTasks(): void {
@@ -271,6 +315,8 @@ Wait for client feedback +work @email status:waiting`;
 		setFilter,
 		uploadFile,
 		downloadTasks,
+		uploadBoardConfig,
+		downloadBoardConfig,
 		createSampleTasks,
 		clearTasks,
 		sortTasksByConfig,

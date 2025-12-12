@@ -7,12 +7,12 @@ x 2025-11-19 2025-10-15 Store todos and settings in localstorage +Persistence
 x 2025-11-19 2025-11-07 Creation of new tasks +Tasks
 x 2025-11-28 2025-11-19 Create- and completion date<br>Add create date to new tasks if not set and completion date when closing +Tasks
 x 2025-11-19 Drag and drop of tasks between columns +Board
-(C) 2025-11-19 Image thumbnails for projects and context\n\nAllow to configure images for projects and contexts (BS icons/unicode/url) +Tasks +Settings
-(B) 2025-11-19 Load tasks from parameter\n* Allow application to be started with parameter `todos=some.domain.tld/a-file.todo.txt`\n* If there are no tasks, tasks should be loaded from the indiciated URL +Tasks +ImportExport
+(A) 2025-11-19 Image thumbnails for projects and contexts\n\n* Allow to configure images for projects and contexts on settings page (BS icons/unicode/url)\n* Render a rounded icon at the beginning of the pill +Tasks +Settings
+(B) 2025-11-19 Load tasks from parameter\n* Allow application to be started with parameter `todos=some.domain.tld/a-file.todo.txt`\n* If there are no tasks, tasks should be loaded from the indiciated URL +Tasks +ImportExport status:on-hold
 x 2025-12-01 2025-11-19 Start from scratch\n\nAllow to clean the board and/or settings and start from scratch +Board
-(B) 2025-11-19 Import/Export settings to json file +Settings +ImportExport
+(A) 2025-11-19 Import/Export settings to json file +Settings +ImportExport status:doing
 x 2025-12-01 2025-11-19 **Task description formatting**\nBasic formatting support (Markdown?)\n* https://github.com/mundimark/awesome-markdown-alternatives\n* https://www.npmjs.com/package/markdown-it\n +Tasks
-(B) 2025-11-20 Load settings from parameter\n\nAllow application to be started with parameter `settings=some.domain.tld/a-settings-file.json` and override current settings. +Settings +ImportExport
+(B) 2025-11-20 Load settings from parameter\n\nAllow application to be started with parameter `settings=some.domain.tld/a-settings-file.json` and override current settings. +Settings +ImportExport status:on-hold
 x 2025-11-28 2025-11-20 Priority buttons<br>Add buttons to task preview to raise/lower priority directly +Tasks +Priority +Board
 (D) 2025-11-20 Task background\n\nAdd support for background styling tags like `background-image=paper.gif`, `background-image=data-url`, `background-color=coral`, `opacity=0.5` +Tasks +Board +Design
 (D) 2025-11-20 Enhanced task detail view\n\nEnhance task detail view: open on click instead of pencil, preview task above editor like on the board, render contexts, projects and tags, priority, creation and completion date +Tasks +DetailView

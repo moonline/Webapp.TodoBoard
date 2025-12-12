@@ -1,7 +1,36 @@
 <template>
 	<div class="settings-view">
 		<div class="settings-container">
-			<h2 class="settings-title">Board Settings</h2>
+			<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+				<h2 class="settings-title m-0">Board Settings</h2>
+				<div class="d-flex gap-2">
+					<button
+						@click="openConfigFilePicker"
+						class="btn btn-primary"
+						title="Import config"
+					>
+						<i class="bi bi-upload me-2"></i>
+						Import
+					</button>
+					<button
+						@click="$emit('export-config')"
+						class="btn btn-success"
+						title="Export config"
+					>
+						<i class="bi bi-download me-2"></i>
+						Export
+					</button>
+				</div>
+			</div>
+
+			<!-- Hidden File Input -->
+			<input
+				ref="configFileInput"
+				type="file"
+				accept=".json"
+				@change="handleConfigFileUpload"
+				class="hidden-file-input"
+			/>
 
 			<!-- Columns Section -->
 			<section class="settings-section">
@@ -205,10 +234,15 @@ const props = defineProps<{
 
 const emit = defineEmits<{
 	save: [config: BoardConfig];
+	"export-config": [];
+	"import-config": [event: Event];
 }>();
 
 // Clone the board config - toRaw() unwraps Vue's reactive Proxy before cloning
 const localConfig = ref<BoardConfig>(structuredClone(toRaw(props.boardConfig)));
+
+// File input ref for config import
+const configFileInput = ref<HTMLInputElement>();
 
 // Computed property to get columns sorted by order
 const sortedColumns = computed(() => {
@@ -325,6 +359,18 @@ function resetSettings(): void {
 		saveSettings();
 	}
 }
+
+function openConfigFilePicker(): void {
+	configFileInput.value?.click();
+}
+
+function handleConfigFileUpload(event: Event): void {
+	emit("import-config", event);
+	// Reset the file input so the same file can be loaded again
+	if (configFileInput.value) {
+		configFileInput.value.value = "";
+	}
+}
 </script>
 
 <style scoped>
@@ -347,7 +393,10 @@ function resetSettings(): void {
 	font-size: 28px;
 	font-weight: 700;
 	color: #2c3e50;
-	margin: 0 0 30px 0;
+}
+
+.hidden-file-input {
+	display: none;
 }
 
 /* Section Styling */
@@ -621,7 +670,7 @@ function resetSettings(): void {
 		flex-direction: column;
 	}
 
-	.btn {
+	.settings-actions .btn {
 		width: 100%;
 		justify-content: center;
 	}

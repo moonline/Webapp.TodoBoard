@@ -52,7 +52,12 @@
 
 		<!-- Settings Tab Content -->
 		<div v-show="activeTab === 'settings'" class="tab-content">
-			<SettingsView :board-config="boardConfig" @save="saveSettings" />
+			<SettingsView
+				:board-config="boardConfig"
+				@save="saveSettings"
+				@export-config="handleExportConfig"
+				@import-config="handleImportConfig"
+			/>
 		</div>
 
 		<!-- Edit Task Modal -->
@@ -210,6 +215,31 @@ function saveSettings(config: BoardConfig): void {
 	tasksStore.setBoardConfig(config);
 	// Optionally switch back to board view after saving
 	// uiStore.setActiveTab('board');
+}
+
+async function handleExportConfig(): Promise<void> {
+	try {
+		await tasksStore.downloadBoardConfig();
+	} catch (error) {
+		console.error("Error exporting config:", error);
+	}
+}
+
+async function handleImportConfig(event: Event): Promise<void> {
+	const file = (event.target as HTMLInputElement).files?.[0];
+	if (!file) {
+		return;
+	}
+
+	try {
+		await tasksStore.uploadBoardConfig(file);
+		// File input is reset in settings-view component
+	} catch (error) {
+		console.error("Error importing config:", error);
+		alert(
+			"Error importing configuration file. Please ensure it's a valid board.config.json file."
+		);
+	}
 }
 
 function handleCreateTask(): void {

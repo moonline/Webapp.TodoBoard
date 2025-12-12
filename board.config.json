@@ -1,0 +1,64 @@
+{
+  "groupingTag": "status",
+  "sortBy": [
+    {
+      "field": "priority",
+      "direction": "asc"
+    }
+  ],
+  "columns": {
+    "uncategorized": {
+      "id": "uncategorized",
+      "type": "uncategorized",
+      "title": "Backlog",
+      "icon": "🗄",
+      "color": "#babdb6",
+      "visible": true,
+      "displayBehavior": "whenTasks",
+      "order": 1
+    },
+    "planning": {
+      "id": "planning",
+      "type": "tag",
+      "title": "Planning",
+      "icon": "📋",
+      "color": "#fd7e14",
+      "visible": true,
+      "displayBehavior": "always",
+      "order": 2,
+      "tagValue": "planning"
+    },
+    "doing": {
+      "id": "doing",
+      "type": "tag",
+      "title": "Doing",
+      "icon": "⚡",
+      "color": "#0d6efd",
+      "visible": true,
+      "displayBehavior": "always",
+      "order": 3,
+      "tagValue": "doing"
+    },
+    "completed": {
+      "id": "completed",
+      "type": "completed",
+      "title": "Done",
+      "icon": "✅",
+      "color": "#4e9a06",
+      "visible": true,
+      "displayBehavior": "always",
+      "order": 3
+    },
+    "tag-1762786563130": {
+      "id": "tag-1762786563130",
+      "type": "tag",
+      "title": "On Hold",
+      "icon": "⛔",
+      "color": "#a40000",
+      "visible": true,
+      "displayBehavior": "always",
+      "order": 0,
+      "tagValue": "on-hold"
+    }
+  }
+}
