@@ -315,10 +315,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, toRaw, computed } from "vue";
+import { ref, watch, computed } from "vue";
 import type { BoardConfig, AggregationMetric } from "@/types/todo";
 import { ColumnType } from "@/types/todo";
-import { getDefaultBoardConfig } from "@/utils/storage";
+import { getDefaultBoardConfig, cloneBoardConfig } from "@/utils/storage";
 
 const props = defineProps<{
 	boardConfig: BoardConfig;
@@ -330,8 +330,8 @@ const emit = defineEmits<{
 	"import-config": [event: Event];
 }>();
 
-// Clone the board config - toRaw() unwraps Vue's reactive Proxy before cloning
-const localConfig = ref<BoardConfig>(structuredClone(toRaw(props.boardConfig)));
+// Clone the board config to avoid mutating the original
+const localConfig = ref<BoardConfig>(cloneBoardConfig(props.boardConfig));
 
 // File input ref for config import
 const configFileInput = ref<HTMLInputElement>();
@@ -402,7 +402,7 @@ const orderDirection = computed({
 watch(
 	() => props.boardConfig,
 	(newConfig) => {
-		localConfig.value = structuredClone(toRaw(newConfig));
+		localConfig.value = cloneBoardConfig(newConfig);
 	},
 	{ deep: true }
 );
@@ -447,18 +447,7 @@ function removeColumn(columnId: string): void {
 }
 
 function saveSettings(): void {
-	// Manually deep clone to ensure all nested Proxies are unwrapped
-	const rawConfig = toRaw(localConfig.value);
-	const clonedConfig: BoardConfig = {
-		groupingTag: rawConfig.groupingTag,
-		sortBy: rawConfig.sortBy.map((s) => ({ ...toRaw(s) })),
-		columns: Object.fromEntries(
-			Object.entries(rawConfig.columns).map(([key, col]) => [key, { ...toRaw(col) }])
-		),
-		metrics: rawConfig.metrics.map((m) => ({ ...toRaw(m) })),
-		showMetrics: rawConfig.showMetrics,
-	};
-	emit("save", clonedConfig);
+	emit("save", cloneBoardConfig(localConfig.value));
 }
 
 function resetSettings(): void {

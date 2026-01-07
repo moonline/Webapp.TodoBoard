@@ -1,7 +1,16 @@
 import type { BoardConfig, TodoTask, Filter } from "@/types/todo";
 import { ColumnType } from "@/types/todo";
+import { toRaw } from "vue";
 
 const STORAGE_PREFIX = "todoboard";
+
+/**
+ * Deep clone a BoardConfig object, unwrapping all Vue Proxy objects
+ * Uses JSON serialization for a simple, safe deep clone
+ */
+export function cloneBoardConfig(config: BoardConfig): BoardConfig {
+	return JSON.parse(JSON.stringify(toRaw(config)));
+}
 
 export function saveTasks(boardId: string, tasks: TodoTask[]): void {
 	localStorage.setItem(`${STORAGE_PREFIX}_tasks_${boardId}`, JSON.stringify(tasks));

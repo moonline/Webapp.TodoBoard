@@ -95,6 +95,7 @@ import { ColumnType } from "@/types/todo";
 import { useTasks } from "@/composables/useTasks";
 import { useUI } from "@/composables/useUI";
 import { buildRawTodoText, parseTodoText } from "@/utils/todo-parser";
+import { cloneBoardConfig } from "@/utils/storage";
 import CompactToolbar from "@/components/compact-toolbar.vue";
 import SettingsView from "@/components/settings-view.vue";
 import TodoBoard from "@/components/todo-board.vue";
@@ -216,7 +217,8 @@ function updateFilter(newFilter: Filter): void {
 }
 
 function handleToggleMetrics(): void {
-	const updatedConfig = { ...boardConfig.value, showMetrics: !boardConfig.value.showMetrics };
+	const updatedConfig = cloneBoardConfig(boardConfig.value);
+	updatedConfig.showMetrics = !updatedConfig.showMetrics;
 	tasksStore.setBoardConfig(updatedConfig);
 }
 
