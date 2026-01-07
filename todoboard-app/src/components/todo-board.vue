@@ -22,6 +22,8 @@
 				:column="column"
 				:is-compact-mode="isCompactMode"
 				:active-task-id="activeTaskId"
+				:metrics="metrics"
+				:show-metrics="showMetrics"
 				@edit-task="$emit('edit-task', $event)"
 				@task-drop="(task, column) => $emit('task-drop', task, column)"
 				@update-priority="
@@ -34,13 +36,15 @@
 </template>
 
 <script setup lang="ts">
-import type { BoardColumn, TodoTask } from "@/types/todo";
+import type { BoardColumn, TodoTask, AggregationMetric } from "@/types/todo";
 import BoardColumnComponent from "./board-column.vue";
 
 defineProps<{
 	columns: BoardColumn[];
 	isCompactMode: boolean;
 	activeTaskId: string | null;
+	metrics?: AggregationMetric[];
+	showMetrics?: boolean;
 }>();
 
 defineEmits<{

@@ -34,6 +34,24 @@
 					{{ column.tasks.length }}
 				</div>
 			</div>
+
+			<!-- Metrics Display -->
+			<div v-if="columnMetrics.length > 0" class="d-flex flex-column gap-1 mt-2 px-1">
+				<div
+					v-for="metric in columnMetrics"
+					:key="metric.id"
+					class="d-flex justify-content-between align-items-center"
+					style="font-size: 10px"
+					:style="{
+						color: getTextColor(column.color || '#f8f9fa'),
+					}"
+				>
+					<span class="opacity-75">{{ metric.name }}:</span>
+					<span class="fw-semibold" style="font-variant-numeric: tabular-nums">{{
+						metric.formattedValue
+					}}</span>
+				</div>
+			</div>
 		</div>
 
 		<div
@@ -62,15 +80,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import type { BoardColumn, TodoTask } from "@/types/todo";
+import { ref, computed } from "vue";
+import type { BoardColumn, TodoTask, AggregationMetric } from "@/types/todo";
+import { calculateMetrics, type MetricResult } from "@/utils/metrics";
 import TaskCard from "./task-card.vue";
 
 const props = defineProps<{
 	column: BoardColumn;
 	isCompactMode: boolean;
 	activeTaskId: string | null;
+	metrics?: AggregationMetric[];
+	showMetrics?: boolean;
 }>();
+
+// Calculate metrics for this column's tasks
+const columnMetrics = computed((): MetricResult[] => {
+	if (!props.metrics || !props.showMetrics || props.metrics.length === 0) {
+		return [];
+	}
+	// Sort metrics by order before calculating
+	const sortedMetrics = [...props.metrics].sort((a, b) => a.order - b.order);
+	return calculateMetrics(sortedMetrics, props.column.tasks);
+});
 
 const emit = defineEmits<{
 	"edit-task": [task: TodoTask];

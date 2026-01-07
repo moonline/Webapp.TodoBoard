@@ -60,5 +60,22 @@
       "order": 0,
       "tagValue": "on-hold"
     }
-  }
+  },
+  "metrics": [
+    {
+      "id": "metric-1767791516154",
+      "name": "Story points",
+      "tag": "points",
+      "method": "sum",
+      "order": 0
+    },
+    {
+      "id": "metric-1767792715166",
+      "name": "Refactoring",
+      "tag": "refactoring",
+      "method": "count",
+      "order": 1
+    }
+  ],
+  "showMetrics": true
 }

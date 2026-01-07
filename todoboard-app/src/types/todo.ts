@@ -33,6 +33,16 @@ export interface BoardColumn {
 	tasks: TodoTask[];
 }
 
+export type AggregationMethod = "sum" | "count" | "average" | "median" | "min" | "max";
+
+export interface AggregationMetric {
+	id: string;
+	name: string;
+	tag: string;
+	method: AggregationMethod;
+	order: number;
+}
+
 export interface BoardConfig {
 	groupingTag: string; // Tag to use for grouping tag columns (e.g., "status")
 	sortBy: Array<{
@@ -40,6 +50,8 @@ export interface BoardConfig {
 		direction: "asc" | "desc";
 	}>;
 	columns: Record<string, Omit<BoardColumn, "tasks">>;
+	metrics: AggregationMetric[];
+	showMetrics: boolean;
 }
 
 export interface Filter {

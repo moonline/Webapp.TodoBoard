@@ -29,11 +29,13 @@
 				:is-filter-collapsed="isFilterCollapsed"
 				:is-compact-mode="isCompactMode"
 				:has-downloadable-tasks="tasks.length > 0"
+				:show-metrics="boardConfig.showMetrics"
 				@create-task="handleCreateTask"
 				@download="tasksStore.downloadTasks"
 				@clear-board="handleClearBoardRequest"
 				@toggle-filter="uiStore.toggleFilterCollapse"
 				@toggle-compact-mode="uiStore.toggleCompactMode"
+				@toggle-metrics="handleToggleMetrics"
 				@update:filter="updateFilter"
 				@file-upload="handleFileUpload"
 			/>
@@ -42,6 +44,8 @@
 				:columns="visibleColumns"
 				:is-compact-mode="isCompactMode"
 				:active-task-id="activeTaskId"
+				:metrics="boardConfig.metrics"
+				:show-metrics="boardConfig.showMetrics"
 				@create-sample-tasks="tasksStore.createSampleTasks"
 				@edit-task="handleEditTask"
 				@task-drop="handleTaskDrop"
@@ -209,6 +213,11 @@ async function handleFileUpload(event: Event): Promise<void> {
 
 function updateFilter(newFilter: Filter): void {
 	tasksStore.setFilter(newFilter);
+}
+
+function handleToggleMetrics(): void {
+	const updatedConfig = { ...boardConfig.value, showMetrics: !boardConfig.value.showMetrics };
+	tasksStore.setBoardConfig(updatedConfig);
 }
 
 function saveSettings(config: BoardConfig): void {

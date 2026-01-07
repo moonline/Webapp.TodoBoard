@@ -39,6 +39,16 @@ export function loadBoardConfig(boardId: string): BoardConfig | null {
 			return null;
 		}
 
+		// Migrate config without metrics
+		if (!config.metrics) {
+			config.metrics = [];
+		}
+
+		// Migrate config without showMetrics
+		if (config.showMetrics === undefined) {
+			config.showMetrics = false;
+		}
+
 		return config;
 	} catch (error) {
 		console.error("Error loading board config:", error);
@@ -120,5 +130,7 @@ export function getDefaultBoardConfig(): BoardConfig {
 				order: 4,
 			},
 		},
+		metrics: [],
+		showMetrics: false,
 	};
 }

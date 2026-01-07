@@ -207,6 +207,98 @@
 				</div>
 			</section>
 
+			<!-- Aggregation Metrics Section -->
+			<section class="settings-section">
+				<h3 class="section-title">
+					<i class="bi bi-calculator"></i>
+					Aggregation Metrics
+				</h3>
+
+				<div class="section-content">
+					<p class="field-description mb-3">
+						Define metrics to calculate aggregated values from task tags in each column
+					</p>
+
+					<div class="d-flex flex-column gap-3 mt-3">
+						<div
+							v-for="(metric, index) in sortedMetrics"
+							:key="metric.id"
+							class="border rounded p-3 bg-light"
+						>
+							<div class="d-flex align-items-center gap-2 mb-3 pb-3 border-bottom">
+								<h4 class="mb-0 flex-grow-1 fw-semibold fs-6 text-secondary">
+									{{ metric.name || "New Metric" }}
+								</h4>
+								<div class="btn-group btn-group-sm" role="group">
+									<button
+										@click="moveMetricUp(index)"
+										:disabled="index === 0"
+										class="btn btn-outline-secondary"
+										title="Move up"
+									>
+										<i class="bi bi-chevron-up"></i>
+									</button>
+									<button
+										@click="moveMetricDown(index)"
+										:disabled="index === sortedMetrics.length - 1"
+										class="btn btn-outline-secondary"
+										title="Move down"
+									>
+										<i class="bi bi-chevron-down"></i>
+									</button>
+								</div>
+								<button
+									@click="removeMetric(metric.id)"
+									class="btn btn-sm btn-outline-danger"
+									title="Remove metric"
+								>
+									<i class="bi bi-trash"></i>
+								</button>
+							</div>
+
+							<div class="row g-2">
+								<div class="col-md-6">
+									<label class="form-label">Name:</label>
+									<input
+										v-model="metric.name"
+										type="text"
+										class="form-control"
+										placeholder="e.g., Total Points, Task Count"
+									/>
+								</div>
+
+								<div class="col-md-6">
+									<label class="form-label">Tag:</label>
+									<input
+										v-model="metric.tag"
+										type="text"
+										class="form-control"
+										placeholder="e.g., points, effort"
+									/>
+								</div>
+
+								<div class="col-md-12">
+									<label class="form-label">Aggregation Method:</label>
+									<select v-model="metric.method" class="form-control">
+										<option value="sum">Sum</option>
+										<option value="count">Count</option>
+										<option value="average">Average</option>
+										<option value="median">Median</option>
+										<option value="min">Minimum</option>
+										<option value="max">Maximum</option>
+									</select>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<button @click="addMetric" class="btn btn-add-column">
+						<i class="bi bi-plus-circle"></i>
+						Add Metric
+					</button>
+				</div>
+			</section>
+
 			<!-- Action Buttons -->
 			<div class="settings-actions">
 				<button @click="saveSettings" class="btn btn-primary">
@@ -224,7 +316,7 @@
 
 <script setup lang="ts">
 import { ref, watch, toRaw, computed } from "vue";
-import type { BoardConfig } from "@/types/todo";
+import type { BoardConfig, AggregationMetric } from "@/types/todo";
 import { ColumnType } from "@/types/todo";
 import { getDefaultBoardConfig } from "@/utils/storage";
 
@@ -249,6 +341,11 @@ const sortedColumns = computed(() => {
 	return Object.entries(localConfig.value.columns).sort(
 		([, columnA], [, columnB]) => columnA.order - columnB.order
 	);
+});
+
+// Computed property to get metrics sorted by order
+const sortedMetrics = computed(() => {
+	return [...(localConfig.value.metrics || [])].sort((a, b) => a.order - b.order);
 });
 
 // Task ordering computed properties
@@ -350,7 +447,18 @@ function removeColumn(columnId: string): void {
 }
 
 function saveSettings(): void {
-	emit("save", structuredClone(toRaw(localConfig.value)));
+	// Manually deep clone to ensure all nested Proxies are unwrapped
+	const rawConfig = toRaw(localConfig.value);
+	const clonedConfig: BoardConfig = {
+		groupingTag: rawConfig.groupingTag,
+		sortBy: rawConfig.sortBy.map((s) => ({ ...toRaw(s) })),
+		columns: Object.fromEntries(
+			Object.entries(rawConfig.columns).map(([key, col]) => [key, { ...toRaw(col) }])
+		),
+		metrics: rawConfig.metrics.map((m) => ({ ...toRaw(m) })),
+		showMetrics: rawConfig.showMetrics,
+	};
+	emit("save", clonedConfig);
 }
 
 function resetSettings(): void {
@@ -370,6 +478,56 @@ function handleConfigFileUpload(event: Event): void {
 	if (configFileInput.value) {
 		configFileInput.value.value = "";
 	}
+}
+
+function addMetric(): void {
+	if (!localConfig.value.metrics) {
+		localConfig.value.metrics = [];
+	}
+
+	const maxOrder = Math.max(...localConfig.value.metrics.map((m) => m.order), -1);
+
+	const newMetric: AggregationMetric = {
+		id: `metric-${Date.now()}`,
+		name: "",
+		tag: "",
+		method: "sum",
+		order: maxOrder + 1,
+	};
+
+	localConfig.value.metrics.push(newMetric);
+}
+
+function removeMetric(metricId: string): void {
+	if (confirm("Are you sure you want to remove this metric?")) {
+		localConfig.value.metrics = localConfig.value.metrics.filter((m) => m.id !== metricId);
+	}
+}
+
+function moveMetricUp(index: number): void {
+	if (index === 0) return;
+
+	const metrics = sortedMetrics.value;
+	const currentMetric = metrics[index];
+	const previousMetric = metrics[index - 1];
+
+	// Swap orders
+	const tempOrder = currentMetric.order;
+	currentMetric.order = previousMetric.order;
+	previousMetric.order = tempOrder;
+}
+
+function moveMetricDown(index: number): void {
+	const metrics = sortedMetrics.value;
+	if (index === metrics.length - 1) return;
+
+	const currentMetric = metrics[index];
+	const nextMetric = metrics[index + 1];
+
+	// Swap orders
+	const tempOrder = currentMetric.order;
+	currentMetric.order = nextMetric.order;
+	nextMetric.order = tempOrder;
 }
 </script>
 
