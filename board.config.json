@@ -54,7 +54,7 @@
       "type": "tag",
       "title": "On Hold",
       "icon": "⛔",
-      "color": "#a40000",
+      "color": "#b8001c",
       "visible": true,
       "displayBehavior": "always",
       "order": 0,
@@ -77,5 +77,5 @@
       "order": 1
     }
   ],
-  "showMetrics": true
+  "showMetrics": false
 }

@@ -18,7 +18,8 @@ x 2025-11-28 2025-11-20 Priority buttons<br>Add buttons to task preview to raise
 (D) 2025-11-20 Enhanced task detail view\n\nEnhance task detail view: open on click instead of pencil, preview task above editor like on the board, render contexts, projects and tags, priority, creation and completion date +Tasks +DetailView points:2
 x 2025-12-08 2025-11-20 URL highlighting\n\nHighlight URLs and email addresses and convert to clickable links +Tasks +Board
 x 2025-11-28 2025-11-20 Enhance tasks download to allow save-as +ImportExport
-(A) 2025-11-28 Aggregation functions for tags\n* Allow the configuration of aggregation functions for one or multiple tags.\n* E.g. `sum`, `count` or `avg` tag.\n* Show agregated values in column headers (collapsable). +Board +Settings points:5 status:doing
+x 2026-02-16 2025-11-28 Aggregation functions for tags\n* Allow the configuration of aggregation functions for one or multiple tags.\n* E.g. `sum`, `count` or `avg` tag.\n* Show agregated values in column headers (collapsable). +Board +Settings points:5
 (B) 2025-11-28 Refactor model to ensure best practices +Refactoring +Model points:5 refactoring:true
-x 2025-12-08 2025-12-08 Compact mode\n\nImplement a toggle to show cards in compact mode: \n* Hide projects, context and tags\n* Shorten description\n* When clicked, tasks are toggled to be shown full +Task +Board
-x 2025-12-08 2025-12-08 Fix colon bug\n\nWhen a task contains a colon which does not correspond to a tag (followed by linebreak or white space), it is converted to an empty tag. Fix it by converting non-tag colons to &colon; +Task type:bug
+x 2025-12-08 2025-12-08 Compact mode\n\nImplement a toggle to show cards in compact mode: \n* Hide projects, context and tags\n* Shorten description\n* When clicked, tasks are toggled to be shown full +Tasks +Board
+x 2025-12-08 2025-12-08 Fix colon bug\n\nWhen a task contains a colon which does not correspond to a tag (followed by linebreak or white space), it is converted to an empty tag. Fix it by converting non-tag colons to &colon; +Tasks type:bug
+(B) 2026-01-07 Desktop wrapper\n* Create an electron wrapper to run the TodoBoard web application as desktop app.\n* Separate core, webapp and electron app\n* Pack as appimage\n* Update documentation +Desktop @Electron points:5 status:doing

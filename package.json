@@ -1,0 +1,25 @@
+{
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "packageManager": "yarn@1.22.19",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "dev:web": "yarn workspace todoboard-webapp dev",
+    "dev:electron": "yarn workspace todoboard-electron dev",
+    "build:web": "yarn workspace todoboard-webapp build",
+    "build:electron": "yarn workspace todoboard-electron build",
+    "pack:appimage": "yarn workspace todoboard-electron pack:appimage",
+    "typecheck:web": "yarn workspace todoboard-webapp vue-tsc --noEmit",
+    "typecheck:electron": "yarn workspace todoboard-electron vue-tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "prettier --check ."
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2"
+  }
+}

@@ -1,0 +1,13 @@
+node_modules/
+dist/
+dist-electron/
+build/
+.yarn/
+*.log
+*.tgz
+*.tar.gz
+coverage/
+.nyc_output/
+package-lock.json
+yarn.lock
+*.tsbuildinfo

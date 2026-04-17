@@ -4,8 +4,8 @@ Create a todo.txt task management application with the following specifications:
 
 ## Data Sources
 
-* todo.txt format: https://github.com/todotxt/todo.txt
-* Parser library: https://www.npmjs.com/package/todo-txt-ts
+- todo.txt format: https://github.com/todotxt/todo.txt
+- Parser library: https://www.npmjs.com/package/todo-txt-ts
 
 ## Core Features
 
@@ -29,7 +29,6 @@ Create a todo.txt task management application with the following specifications:
    - Task board (Kanban view)
    - Settings configuration panel
 
-
 ## Filtering System
 
 - Filter by project, context, or key:value tags
@@ -43,7 +42,7 @@ Create a todo.txt task management application with the following specifications:
   - Project names (first project)
   - Context tags (first context)
   - Custom key:value tags
-  - Default: status:* tag values
+  - Default: status:\* tag values
 - **Special columns**: "Untagged" and "Done" tasks
 - **Column customization**: order, icon, label, color, visibility rules
 - **Task sorting** within columns by priority, project, context, date, or custom tags
@@ -54,7 +53,6 @@ Create a todo.txt task management application with the following specifications:
 - **Per-project settings**: Each todo.txt file has independent configuration
 - **Import/export**: JSON format for board configurations
 - **Persistent storage**: Local storage for web, .config.json files for desktop
-
 
 ## Storage Requirements
 
